@@ -54,16 +54,6 @@ public class GetStorageInfosAction implements PtpAction {
             }
 
             StorageInfo info = c.getStorageInfo();
-//            StringBuffer infoValue =new StringBuffer();
-//            infoValue.append("accessCapability:"+info.accessCapability+"\n");
-//            infoValue.append("filesystemType:"+info.filesystemType+"\n");
-//            infoValue.append("storageDescription:"+info.storageDescription+"\n");
-//            infoValue.append("volumeLabel:"+info.volumeLabel+"\n");
-//            infoValue.append("storageType:"+info.storageType+"\n");
-//            infoValue.append("maxCapacity:"+info.maxCapacity+"\n");
-//            infoValue.append("freeSpaceInBytes:"+info.freeSpaceInBytes+"\n");
-//            infoValue.append("freeSpaceInImages:"+info.freeSpaceInImages+"\n");
-//            MyLog.show(infoValue.toString());
 
             String label = c.getStorageInfo().volumeLabel.isEmpty() ? c.getStorageInfo().storageDescription : c
                     .getStorageInfo().volumeLabel;

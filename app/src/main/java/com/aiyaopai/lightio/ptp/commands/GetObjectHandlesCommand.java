@@ -16,6 +16,7 @@
 package com.aiyaopai.lightio.ptp.commands;
 
 import com.aiyaopai.lightio.ptp.Camera;
+import com.aiyaopai.lightio.ptp.NikonCamera;
 import com.aiyaopai.lightio.ptp.PacketUtil;
 import com.aiyaopai.lightio.ptp.PtpCamera;
 import com.aiyaopai.lightio.ptp.PtpConstants;
@@ -67,11 +68,20 @@ public class GetObjectHandlesCommand extends Command {
 
     @Override
     public void encodeCommand(ByteBuffer b) {
+        if (camera instanceof NikonCamera) {
+            super.encodeCommand(b, PtpConstants.Operation.GetObjectHandles, -1,objectFormat);
+            return;
+        }
         super.encodeCommand(b, PtpConstants.Operation.GetObjectHandles, storageId, objectFormat, associationHandle);
     }
 
     @Override
     protected void decodeData(ByteBuffer b, int length) {
-        objectHandles = PacketUtil.readU32Array(b);
+        if (b.position() < length) {
+            objectHandles = PacketUtil.readU32Array(b);
+        } else {
+            objectHandles = new int[0];
+
+        }
     }
 }

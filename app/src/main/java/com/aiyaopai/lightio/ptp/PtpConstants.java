@@ -340,6 +340,7 @@ public class PtpConstants {
         public static final int NikonExposureIndicateStatus = 0xD1B1;
         public static final int NikonActivePicCtrlItem = 0xD200;
         public static final int NikonEnableAfAreaPoint = 0xD08D;
+        public static final int NikonApplicationMode = 53744;
     }
 
     public static String propertyToString(int property) {

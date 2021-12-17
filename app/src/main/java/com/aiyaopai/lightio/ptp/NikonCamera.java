@@ -52,7 +52,7 @@ public class NikonCamera extends PtpCamera {
     @Override
     protected void onOperationCodesReceived(Set<Integer> operations) {
         supportedOperations = operations;
-        if (operations.contains(PtpConstants.Operation.NikonGetLiveViewImage) && operations.contains(Operation.NikonStartLiveView)
+        if (operations.contains(Operation.NikonGetLiveViewImage) && operations.contains(Operation.NikonStartLiveView)
                 && operations.contains(Operation.NikonEndLiveView)) {
             liveViewSupported = true;
         }
@@ -102,12 +102,15 @@ public class NikonCamera extends PtpCamera {
     }
 
     private void onPropertyCodesReceived(Set<Integer> properties) {
-        if (properties.contains(PtpConstants.Property.NikonShutterSpeed)) {
-            queue.add(new GetDevicePropDescCommand(this, PtpConstants.Property.NikonShutterSpeed));
-        }
-        if (properties.contains(PtpConstants.Property.ExposureTime)) {
-            queue.add(new GetDevicePropDescCommand(this, PtpConstants.Property.ExposureTime));
-        }
+//        if (properties.contains(PtpConstants.Property.NikonShutterSpeed)) {
+//            queue.add(new GetDevicePropDescCommand(this, PtpConstants.Property.NikonShutterSpeed));
+//        }
+//        if (properties.contains(PtpConstants.Property.ExposureTime)) {
+//            queue.add(new GetDevicePropDescCommand(this, PtpConstants.Property.ExposureTime));
+//        }
+//        if (properties.contains(PtpConstants.Property.NikonApplicationMode)) {
+//            this.queue.add(new GetDevicePropDescCommand(this, PtpConstants.Property.NikonApplicationMode));
+//        }
 
         addPropertyMapping(Camera.Property.ApertureValue, PtpConstants.Property.FNumber);
         addPropertyMapping(Camera.Property.IsoSpeed, PtpConstants.Property.ExposureIndex);
@@ -128,11 +131,11 @@ public class NikonCamera extends PtpCamera {
             addInternalProperty(PtpConstants.Property.NikonEnableAfAreaPoint);
         }
 
-        for (Integer property : properties) {
-            if (ptpToVirtualProperty.containsKey(property) || ptpInternalProperties.contains(property)) {
-                queue.add(new GetDevicePropDescCommand(this, property));
-            }
-        }
+//        for (Integer property : properties) {
+//            if (ptpToVirtualProperty.containsKey(property) || ptpInternalProperties.contains(property)) {
+//                queue.add(new GetDevicePropDescCommand(this, property));
+//            }
+//        }
     }
 
     @Override
@@ -223,21 +226,21 @@ public class NikonCamera extends PtpCamera {
             return false;
         }
         switch (property) {
-        case Property.ShutterSpeed:
-            return mode == 4 || mode == 1;
-        case Property.ApertureValue:
-            return mode == 3 || mode == 1;
-        case Property.IsoSpeed: //TODO this should only be disabled for DIP when isoautosetting is on
-        case Property.Whitebalance:
-        case Property.ExposureMeteringMode:
-        case Property.ExposureCompensation:
-            return mode < 0x8010;
-        case Property.FocusPoints:
-            return true;
-        case Property.ColorTemperature:
-            return wb != null && wb == 0x8012;
-        default:
-            return true;
+            case Property.ShutterSpeed:
+                return mode == 4 || mode == 1;
+            case Property.ApertureValue:
+                return mode == 3 || mode == 1;
+            case Property.IsoSpeed: //TODO this should only be disabled for DIP when isoautosetting is on
+            case Property.Whitebalance:
+            case Property.ExposureMeteringMode:
+            case Property.ExposureCompensation:
+                return mode < 0x8010;
+            case Property.FocusPoints:
+                return true;
+            case Property.ColorTemperature:
+                return wb != null && wb == 0x8012;
+            default:
+                return true;
         }
     }
 
@@ -284,90 +287,90 @@ public class NikonCamera extends PtpCamera {
     public List<FocusPoint> getFocusPoints() {
         List<FocusPoint> points = new ArrayList<FocusPoint>();
         switch (productId) {
-        case PtpConstants.Product.NikonD40:
-        /* TODO no productId for D60 case PtpConstants.Product.NikonD60: */{
-            points.add(new FocusPoint(0, 0.5f, 0.5f, 0.04f));
-            points.add(new FocusPoint(0, 0.30f, 0.5f, 0.04f));
-            points.add(new FocusPoint(0, 0.70f, 0.5f, 0.04f));
-            return points;
-        }
-        case PtpConstants.Product.NikonD200:
-        case PtpConstants.Product.NikonD80: {
-            points.add(new FocusPoint(0, 0.5f, 0.5f, 0.04f));
-            points.add(new FocusPoint(1, 0.5f, 0.29f, 0.04f));
-            points.add(new FocusPoint(2, 0.5f, 0.71f, 0.04f));
-            points.add(new FocusPoint(3, 0.33f, 0.5f, 0.04f));
-            points.add(new FocusPoint(4, 0.67f, 0.5f, 0.04f));
-            points.add(new FocusPoint(5, 0.22f, 0.5f, 0.04f));
-            points.add(new FocusPoint(6, 0.78f, 0.5f, 0.04f));
-            points.add(new FocusPoint(7, 0.33f, 0.39f, 0.04f));
-            points.add(new FocusPoint(8, 0.67f, 0.39f, 0.04f));
-            points.add(new FocusPoint(9, 0.33f, 0.61f, 0.04f));
-            points.add(new FocusPoint(10, 0.67f, 0.61f, 0.04f));
-            return points;
-        }
-        case PtpConstants.Product.NikonD5000:
-        case PtpConstants.Product.NikonD90: {
-            points.add(new FocusPoint(1, 0.5f, 0.5f, 0.04f));
-            points.add(new FocusPoint(2, 0.5f, 0.3f, 0.04f));
-            points.add(new FocusPoint(3, 0.5f, 0.7f, 0.04f));
-            points.add(new FocusPoint(4, 0.33f, 0.5f, 0.04f));
-            points.add(new FocusPoint(5, 0.33f, 0.35f, 0.04f));
-            points.add(new FocusPoint(6, 0.33f, 0.65f, 0.04f));
-            points.add(new FocusPoint(7, 0.22f, 0.5f, 0.04f));
-            points.add(new FocusPoint(8, 0.67f, 0.5f, 0.04f));
-            points.add(new FocusPoint(9, 0.67f, 0.35f, 0.04f));
-            points.add(new FocusPoint(10, 0.67f, 0.65f, 0.04f));
-            points.add(new FocusPoint(11, 0.78f, 0.5f, 0.04f));
-            return points;
-        }
-        case PtpConstants.Product.NikonD300:
-            //case PtpConstants.Product.NikonD700: same id as d300
-        case PtpConstants.Product.NikonD300S:
-        case PtpConstants.Product.NikonD3:
-        case PtpConstants.Product.NikonD3S:
-        case PtpConstants.Product.NikonD3X: {
-            points.add(new FocusPoint(1, 0.5f, 0.5f, 0.035f));
-            points.add(new FocusPoint(3, 0.5f, 0.36f, 0.035f));
-            points.add(new FocusPoint(5, 0.5f, 0.64f, 0.035f));
-
-            points.add(new FocusPoint(21, 0.65f, 0.5f, 0.035f));
-            points.add(new FocusPoint(23, 0.65f, 0.4f, 0.035f));
-            points.add(new FocusPoint(25, 0.65f, 0.6f, 0.035f));
-            points.add(new FocusPoint(31, 0.75f, 0.5f, 0.035f));
-
-            points.add(new FocusPoint(39, 0.35f, 0.5f, 0.035f));
-            points.add(new FocusPoint(41, 0.35f, 0.4f, 0.035f));
-            points.add(new FocusPoint(43, 0.35f, 0.6f, 0.035f));
-            points.add(new FocusPoint(49, 0.25f, 0.5f, 0.035f));
-
-            if (enableAfAreaPoint == 0) {
-                //TODO has more points when EnableAFAreaPoint is 0
+            case PtpConstants.Product.NikonD40:
+                /* TODO no productId for D60 case PtpConstants.Product.NikonD60: */{
+                points.add(new FocusPoint(0, 0.5f, 0.5f, 0.04f));
+                points.add(new FocusPoint(0, 0.30f, 0.5f, 0.04f));
+                points.add(new FocusPoint(0, 0.70f, 0.5f, 0.04f));
+                return points;
             }
-            return points;
-        }
-        case PtpConstants.Product.NikonD7000: {
-            points.add(new FocusPoint(1, 0.5f, 0.5f, 0.035f));
-            points.add(new FocusPoint(3, 0.5f, 0.32f, 0.035f));
-            points.add(new FocusPoint(5, 0.5f, 0.68f, 0.035f));
-
-            points.add(new FocusPoint(19, 0.68f, 0.5f, 0.035f));
-            points.add(new FocusPoint(20, 0.68f, 0.4f, 0.035f));
-            points.add(new FocusPoint(21, 0.68f, 0.6f, 0.035f));
-            points.add(new FocusPoint(25, 0.80f, 0.5f, 0.035f));
-
-            points.add(new FocusPoint(31, 0.32f, 0.5f, 0.035f));
-            points.add(new FocusPoint(32, 0.32f, 0.4f, 0.035f));
-            points.add(new FocusPoint(33, 0.32f, 0.6f, 0.035f));
-            points.add(new FocusPoint(37, 0.20f, 0.5f, 0.035f));
-
-            if (enableAfAreaPoint == 0) {
-                //TODO has more points when EnableAFAreaPoint is 0
+            case PtpConstants.Product.NikonD200:
+            case PtpConstants.Product.NikonD80: {
+                points.add(new FocusPoint(0, 0.5f, 0.5f, 0.04f));
+                points.add(new FocusPoint(1, 0.5f, 0.29f, 0.04f));
+                points.add(new FocusPoint(2, 0.5f, 0.71f, 0.04f));
+                points.add(new FocusPoint(3, 0.33f, 0.5f, 0.04f));
+                points.add(new FocusPoint(4, 0.67f, 0.5f, 0.04f));
+                points.add(new FocusPoint(5, 0.22f, 0.5f, 0.04f));
+                points.add(new FocusPoint(6, 0.78f, 0.5f, 0.04f));
+                points.add(new FocusPoint(7, 0.33f, 0.39f, 0.04f));
+                points.add(new FocusPoint(8, 0.67f, 0.39f, 0.04f));
+                points.add(new FocusPoint(9, 0.33f, 0.61f, 0.04f));
+                points.add(new FocusPoint(10, 0.67f, 0.61f, 0.04f));
+                return points;
             }
-            return points;
-        }
-        default:
-            return points;
+            case PtpConstants.Product.NikonD5000:
+            case PtpConstants.Product.NikonD90: {
+                points.add(new FocusPoint(1, 0.5f, 0.5f, 0.04f));
+                points.add(new FocusPoint(2, 0.5f, 0.3f, 0.04f));
+                points.add(new FocusPoint(3, 0.5f, 0.7f, 0.04f));
+                points.add(new FocusPoint(4, 0.33f, 0.5f, 0.04f));
+                points.add(new FocusPoint(5, 0.33f, 0.35f, 0.04f));
+                points.add(new FocusPoint(6, 0.33f, 0.65f, 0.04f));
+                points.add(new FocusPoint(7, 0.22f, 0.5f, 0.04f));
+                points.add(new FocusPoint(8, 0.67f, 0.5f, 0.04f));
+                points.add(new FocusPoint(9, 0.67f, 0.35f, 0.04f));
+                points.add(new FocusPoint(10, 0.67f, 0.65f, 0.04f));
+                points.add(new FocusPoint(11, 0.78f, 0.5f, 0.04f));
+                return points;
+            }
+            case PtpConstants.Product.NikonD300:
+                //case PtpConstants.Product.NikonD700: same id as d300
+            case PtpConstants.Product.NikonD300S:
+            case PtpConstants.Product.NikonD3:
+            case PtpConstants.Product.NikonD3S:
+            case PtpConstants.Product.NikonD3X: {
+                points.add(new FocusPoint(1, 0.5f, 0.5f, 0.035f));
+                points.add(new FocusPoint(3, 0.5f, 0.36f, 0.035f));
+                points.add(new FocusPoint(5, 0.5f, 0.64f, 0.035f));
+
+                points.add(new FocusPoint(21, 0.65f, 0.5f, 0.035f));
+                points.add(new FocusPoint(23, 0.65f, 0.4f, 0.035f));
+                points.add(new FocusPoint(25, 0.65f, 0.6f, 0.035f));
+                points.add(new FocusPoint(31, 0.75f, 0.5f, 0.035f));
+
+                points.add(new FocusPoint(39, 0.35f, 0.5f, 0.035f));
+                points.add(new FocusPoint(41, 0.35f, 0.4f, 0.035f));
+                points.add(new FocusPoint(43, 0.35f, 0.6f, 0.035f));
+                points.add(new FocusPoint(49, 0.25f, 0.5f, 0.035f));
+
+                if (enableAfAreaPoint == 0) {
+                    //TODO has more points when EnableAFAreaPoint is 0
+                }
+                return points;
+            }
+            case PtpConstants.Product.NikonD7000: {
+                points.add(new FocusPoint(1, 0.5f, 0.5f, 0.035f));
+                points.add(new FocusPoint(3, 0.5f, 0.32f, 0.035f));
+                points.add(new FocusPoint(5, 0.5f, 0.68f, 0.035f));
+
+                points.add(new FocusPoint(19, 0.68f, 0.5f, 0.035f));
+                points.add(new FocusPoint(20, 0.68f, 0.4f, 0.035f));
+                points.add(new FocusPoint(21, 0.68f, 0.6f, 0.035f));
+                points.add(new FocusPoint(25, 0.80f, 0.5f, 0.035f));
+
+                points.add(new FocusPoint(31, 0.32f, 0.5f, 0.035f));
+                points.add(new FocusPoint(32, 0.32f, 0.4f, 0.035f));
+                points.add(new FocusPoint(33, 0.32f, 0.6f, 0.035f));
+                points.add(new FocusPoint(37, 0.20f, 0.5f, 0.035f));
+
+                if (enableAfAreaPoint == 0) {
+                    //TODO has more points when EnableAFAreaPoint is 0
+                }
+                return points;
+            }
+            default:
+                return points;
         }
     }
 }

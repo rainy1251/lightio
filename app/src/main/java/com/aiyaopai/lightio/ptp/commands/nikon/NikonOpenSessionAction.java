@@ -32,14 +32,16 @@ public class NikonOpenSessionAction implements PtpAction {
 
     @Override
     public void exec(PtpCamera.IO io) {
+        int i=0;
         OpenSessionCommand openSession = new OpenSessionCommand(camera);
         io.handleCommand(openSession);
         if (openSession.getResponseCode() == PtpConstants.Response.Ok) {
             if (camera.hasSupportForOperation(PtpConstants.Operation.NikonGetVendorPropCodes)) {
+
                 NikonGetVendorPropCodesCommand getPropCodes = new NikonGetVendorPropCodesCommand(camera);
                 io.handleCommand(getPropCodes);
-                SetDevicePropValueCommand c = new SetDevicePropValueCommand(camera, PtpConstants.Property.NikonRecordingMedia, 1,
-                        PtpConstants.Datatype.uint8);
+               /* SetDevicePropValueCommand c = new SetDevicePropValueCommand(camera, Property.NikonRecordingMedia, 1,
+                        Datatype.uint8);
                 io.handleCommand(c);
                 if (getPropCodes.getResponseCode() == PtpConstants.Response.Ok
                         && c.getResponseCode() == PtpConstants.Response.Ok) {
@@ -50,13 +52,29 @@ public class NikonOpenSessionAction implements PtpAction {
                             "Couldn't read device property codes! Open session command failed with error code \"%s\"",
                             PtpConstants.responseToString(getPropCodes.getResponseCode())));
                 }
+
+            } else {
+                camera.onSessionOpened();
+            }*/
+                if (getPropCodes.getResponseCode() == PtpConstants.Response.Ok) {
+                    this.camera.setVendorPropCodes(getPropCodes.getPropertyCodes());
+                    int[] propertyCodes = getPropCodes.getPropertyCodes();
+                    int length = propertyCodes.length;
+                    while (i < length) {
+
+                        if (propertyCodes[i] == PtpConstants.Property.NikonApplicationMode) {
+
+                            io.handleCommand(new SetDevicePropValueCommand(this.camera, PtpConstants.Property.NikonApplicationMode, 1, 2));
+                        }
+                        i++;
+                    }
+                    camera.onSessionOpened();
+                    return;
+                }
             } else {
                 camera.onSessionOpened();
             }
-        } else {
-            camera.onPtpError(String.format(
-                    "Couldn't open session! Open session command failed with error code \"%s\"",
-                    PtpConstants.responseToString(openSession.getResponseCode())));
+
         }
     }
 
