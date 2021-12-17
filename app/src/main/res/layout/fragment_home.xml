@@ -1,0 +1,157 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical">
+
+    <include
+        android:id="@+id/include_home"
+        layout="@layout/toolbar_layout" />
+
+    <androidx.coordinatorlayout.widget.CoordinatorLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
+
+        <com.google.android.material.appbar.AppBarLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            app:elevation="0dp"
+            android:orientation="vertical">
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                app:layout_scrollFlags="scroll"
+                android:orientation="vertical">
+
+                <com.youth.banner.Banner
+                    android:id="@+id/banner"
+                    android:layout_width="match_parent"
+                    app:banner_indicator_selected_color="@color/yp_blue"
+                    app:banner_indicator_normal_color="@color/white"
+                    app:banner_indicator_marginBottom="10dp"
+                    android:layout_height="200dp" />
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:background="@color/white"
+                    android:orientation="horizontal"
+                    android:paddingTop="10dp"
+                    android:paddingBottom="10dp">
+
+                    <com.aiyaopai.lightio.view.MyDrawableTextView
+                        android:id="@+id/tv_class1"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:drawablePadding="5dp"
+                        android:gravity="center_horizontal"
+                        android:text="邀拍云摄影"
+                        app:imageHeight="48dp"
+                        app:imageWidth="48dp"
+                        app:topImage="@mipmap/icon_home1" />
+
+                    <com.aiyaopai.lightio.view.MyDrawableTextView
+                        android:id="@+id/tv_class2"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:drawablePadding="5dp"
+                        android:gravity="center_horizontal"
+                        android:text="帮助中心"
+                        app:imageHeight="48dp"
+                        app:imageWidth="48dp"
+                        app:topImage="@mipmap/icon_home2" />
+
+                    <com.aiyaopai.lightio.view.MyDrawableTextView
+                        android:id="@+id/tv_class3"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:drawablePadding="5dp"
+                        android:gravity="center_horizontal"
+                        android:text="预约云摄影"
+                        app:imageHeight="48dp"
+                        app:imageWidth="48dp"
+                        app:topImage="@mipmap/icon_home3" />
+
+                    <com.aiyaopai.lightio.view.MyDrawableTextView
+                        android:id="@+id/tv_class4"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:drawablePadding="5dp"
+                        android:gravity="center_horizontal"
+                        android:text="招募摄影师"
+                        app:imageHeight="48dp"
+                        app:imageWidth="48dp"
+                        app:topImage="@mipmap/icon_home4" />
+
+
+                </LinearLayout>
+
+                <LinearLayout
+                    android:background="@color/white"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="center_vertical"
+                    android:gravity="center_horizontal"
+                    android:orientation="horizontal"
+                    android:paddingTop="20dp"
+                    android:paddingBottom="10dp">
+
+                    <View
+                        android:layout_width="3dp"
+                        android:layout_height="8dp"
+                        android:layout_gravity="center_vertical"
+                        android:background="@mipmap/icon_slash" />
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginLeft="10dp"
+                        android:layout_marginRight="10dp"
+                        android:fontFamily="sans-serif-thin"
+                        android:text="直播案例 "
+                        android:textSize="16sp"
+                        android:textStyle="italic" />
+
+                    <View
+                        android:layout_width="3dp"
+                        android:layout_height="8dp"
+                        android:layout_gravity="center_vertical"
+                        android:background="@mipmap/icon_slash" />
+                </LinearLayout>
+            </LinearLayout>
+
+            <com.google.android.material.tabs.TabLayout
+                android:id="@+id/tab_layout"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:background="@color/white"
+                app:tabBackground="@null"
+                app:tabGravity="center"
+                app:tabIndicator="@drawable/icon_indicator"
+                app:tabIndicatorFullWidth="false"
+                app:tabIndicatorHeight="4dp"
+                app:tabInlineLabel="true"
+                app:tabMaxWidth="200dp"
+                app:tabMinWidth="30dp"
+                app:tabMode="scrollable"
+                app:tabPaddingEnd="8dp"
+                app:tabPaddingStart="12dp"
+                app:tabSelectedTextColor="@color/black"
+                app:tabTextColor="@color/color_333333" />
+        </com.google.android.material.appbar.AppBarLayout>
+
+        <androidx.viewpager2.widget.ViewPager2
+            android:id="@+id/viewpage"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:overScrollMode="never"
+            app:layout_behavior="@string/appbar_scrolling_view_behavior" />
+    </androidx.coordinatorlayout.widget.CoordinatorLayout>
+
+</LinearLayout>

@@ -1,0 +1,215 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    tools:context=".components.activity.SettingActivity">
+
+    <include
+        android:id="@+id/include_set"
+        layout="@layout/toolbar_layout" />
+
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="40dp"
+        android:background="@color/color_fe"
+        android:gravity="center_vertical"
+        android:paddingStart="24dp"
+        android:text="上传策略"
+        android:textColor="@color/color_666666"
+        tools:ignore="RtlSymmetry" />
+
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="50dp"
+        android:background="@color/white">
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_centerVertical="true"
+            android:layout_marginStart="24dp"
+            android:text="拍摄前自动扫描未上传照片"
+            android:textColor="@color/color_333333" />
+
+        <ImageView
+            android:id="@+id/iv_autoscan"
+            android:layout_width="51dp"
+            android:layout_height="31dp"
+            android:layout_alignParentEnd="true"
+            android:layout_centerVertical="true"
+            android:layout_marginEnd="24dp"
+            android:src="@mipmap/article_checked" />
+    </RelativeLayout>
+
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="1dp"
+        android:background="@color/under_line" />
+
+    <RelativeLayout
+        android:id="@+id/rl_type"
+        android:layout_width="match_parent"
+        android:layout_height="50dp"
+        android:background="@color/white">
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_centerVertical="true"
+            android:layout_marginStart="24dp"
+            android:text="上传方式"
+            android:textColor="@color/color_333333" />
+
+        <RelativeLayout
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignParentEnd="true"
+            android:layout_centerVertical="true"
+            android:layout_marginEnd="24dp">
+
+            <TextView
+                android:id="@+id/tv_type"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_centerVertical="true"
+                android:layout_marginStart="24dp"
+                android:text="上传方式"
+                android:textColor="@color/color_333333" />
+
+            <ImageView
+                android:id="@+id/iv_more"
+                android:layout_width="36dp"
+                android:layout_height="36dp"
+                android:layout_toEndOf="@+id/tv_type"
+                android:src="@mipmap/back_right" />
+
+        </RelativeLayout>
+
+    </RelativeLayout>
+
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="40dp"
+        android:background="@color/color_fe"
+        android:gravity="center_vertical"
+        android:paddingStart="24dp"
+        android:text="照片分辨率"
+        android:textColor="@color/color_666666"
+        tools:ignore="RtlSymmetry" />
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="50dp"
+        android:background="@color/white">
+
+        <RadioGroup
+            android:id="@+id/rg_photo_type"
+            android:layout_width="match_parent"
+            android:layout_height="40dp"
+            android:layout_marginHorizontal="20dp"
+            android:layout_centerInParent="true"
+            android:orientation="horizontal">
+
+            <RadioButton
+                android:id="@+id/rb_j"
+                android:layout_width="0dp"
+                android:layout_height="match_parent"
+                android:layout_weight="1"
+                android:button="@null"
+                android:drawableStart="@drawable/tab_bg_selector"
+                android:drawablePadding="5dp"
+                android:paddingStart="10dp"
+                android:text="极速(0.5M)"
+                android:textSize="12sp"
+                android:visibility="gone"/>
+
+            <RadioButton
+                android:id="@+id/rb_b"
+                android:layout_width="0dp"
+                android:layout_height="match_parent"
+                android:layout_weight="1"
+                android:button="@null"
+                android:checked="true"
+                android:drawableStart="@drawable/tab_bg_selector"
+                android:drawablePadding="5dp"
+                android:paddingStart="10dp"
+                android:text="标清"
+                android:textSize="12sp"
+                android:layout_marginEnd="20dp"
+                tools:ignore="RtlSymmetry" />
+
+            <RadioButton
+                android:id="@+id/rb_g"
+                android:layout_marginStart="20dp"
+                android:layout_width="0dp"
+                android:layout_height="match_parent"
+                android:layout_weight="1"
+                android:button="@null"
+                android:drawableStart="@drawable/tab_bg_selector"
+                android:drawablePadding="5dp"
+                android:paddingStart="10dp"
+                android:text="原图直传"
+                android:textSize="12sp" />
+        </RadioGroup>
+
+    </RelativeLayout>
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="40dp"
+        android:background="@color/color_fe"
+        android:gravity="center_vertical"
+        android:paddingStart="24dp"
+        android:text="其他"
+        android:textColor="@color/color_666666"
+        tools:ignore="RtlSymmetry" />
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="50dp"
+        android:background="@color/white">
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_centerVertical="true"
+            android:layout_marginLeft="24dp"
+            android:text="连接断开手机震动"
+            android:textColor="@color/color_333333" />
+
+        <ImageView
+            android:id="@+id/iv_vibrate"
+            android:layout_width="51dp"
+            android:layout_height="31dp"
+            android:layout_alignParentRight="true"
+            android:layout_centerVertical="true"
+            android:layout_marginRight="24dp"
+            android:src="@mipmap/article_checked" />
+    </RelativeLayout>
+
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="1dp"
+        android:background="@color/under_line" />
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="50dp"
+        android:id="@+id/rl_help"
+        android:background="@color/white">
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_centerVertical="true"
+            android:layout_marginLeft="24dp"
+            android:text="帮助中心"
+            android:textColor="@color/color_333333" />
+        <ImageView
+            android:layout_width="36dp"
+            android:layout_height="36dp"
+            android:layout_alignParentRight="true"
+            android:layout_marginRight="20dp"
+            android:layout_centerVertical="true"
+            android:src="@mipmap/back_right" />
+    </RelativeLayout>
+</LinearLayout>

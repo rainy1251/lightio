@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical">
+
+    <include
+        android:id="@+id/include_notice"
+        layout="@layout/toolbar_layout" />
+
+    <TextView
+        android:id="@+id/tv_tips"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/include_notice"
+        android:layout_gravity="center_vertical"
+        android:layout_marginStart="20dp"
+        android:layout_marginTop="20dp"
+        android:text="拍摄提醒"
+        android:textColor="@color/dark"
+        android:textSize="18sp"
+        android:drawablePadding="5dp"
+        app:drawableStartCompat="@mipmap/notice" />
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/tv_tips"
+        android:layout_marginTop="10dp"
+        android:layout_marginEnd="20dp"
+        android:layout_alignStart="@+id/tv_tips"
+        android:lineSpacingMultiplier="1.5"
+        android:text="@string/notice"
+        android:textSize="16sp" />
+
+    <TextView
+        android:id="@+id/tv_enter"
+        android:layout_width="match_parent"
+        android:layout_height="50dp"
+        android:layout_alignParentBottom="true"
+        android:background="@color/yp_blue"
+        android:gravity="center"
+        android:text="数据同步中"
+        android:textColor="@color/white"
+        android:textSize="16sp" />
+</RelativeLayout>
