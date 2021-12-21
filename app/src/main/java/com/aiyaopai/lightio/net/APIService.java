@@ -4,7 +4,9 @@ package com.aiyaopai.lightio.net;
 import com.aiyaopai.lightio.bean.ActivityListBean;
 import com.aiyaopai.lightio.bean.BannerBean;
 import com.aiyaopai.lightio.bean.BaseBean;
+import com.aiyaopai.lightio.bean.OriginalPicBean;
 import com.aiyaopai.lightio.bean.SignInBean;
+import com.aiyaopai.lightio.bean.UserBean;
 
 import java.util.List;
 import java.util.Map;
@@ -12,7 +14,9 @@ import java.util.Map;
 import io.reactivex.rxjava3.core.Observable;
 import retrofit2.http.FieldMap;
 import retrofit2.http.FormUrlEncoded;
+import retrofit2.http.GET;
 import retrofit2.http.POST;
+import retrofit2.http.Query;
 
 public interface APIService {
 
@@ -33,9 +37,8 @@ public interface APIService {
     /**
      * 获取用户信息
      */
-    @FormUrlEncoded
-    @POST(".")
-    Observable<SignInBean> getUserInfo(@FieldMap Map<String, Object> map);
+    @GET("/user/current")
+    Observable<UserBean> getUserInfo();
 
     /**
      * 手机号密码登录
@@ -48,7 +51,7 @@ public interface APIService {
      * 验证码登录
      */
     @FormUrlEncoded
-    @POST(".")
+    @POST("/oauth/connect/token")
     Observable<SignInBean> loginCode(@FieldMap Map<String, Object> map);
 
     /**
@@ -69,27 +72,27 @@ public interface APIService {
      * 发送验证码
      */
     @FormUrlEncoded
-    @POST(".")
+    @POST("/oauth/smsconnect/code")
     Observable<BaseBean> sendCode(@FieldMap Map<String, Object> map);
 
     /**
      * 获取活动列表
      */
-    @FormUrlEncoded
-    @POST(".")
-    Observable<ActivityListBean> getActivityList(@FieldMap Map<String, Object> map);
+    @GET("/activity/list")
+    Observable<ActivityListBean> getActivityList(@Query("offset") int offset
+            , @Query("limit") int limit, @Query("roles") String roles);
 
     /**
      * 获取图片上传令牌
      */
     @FormUrlEncoded
-    @POST(".")
+    @POST("originalpicture/uploadToken")
     Observable<BaseBean> getQiNiuToken(@FieldMap Map<String, Object> map);
 
     /**
      * 查找原始照片列表
      */
-    @FormUrlEncoded
-    @POST(".")
-    Observable<ActivityListBean> getOriginalPic(@FieldMap Map<String, Object> map);
+    @GET("/originalpicture/list")
+    Observable<OriginalPicBean> getOriginalPic(@Query("offset") int offset, @Query("limit") int limit
+            , @Query("albumId") String albumId, @Query("createdUserId") String createdUserId);
 }

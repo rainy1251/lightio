@@ -14,38 +14,35 @@ public class SearchPwdPresenter extends BasePresenter<SearchPwdContract.View> im
 
     private  SearchPwdContract.Model model;
 
-    public SearchPwdPresenter() {
+    public SearchPwdPresenter(SearchPwdContract.View view) {
+        super(view);
         model = new SearchPwdModel();
     }
 
     @Override
     public void resetPwd(String phoneNo, String code, String pwd ){
-        if (!isViewAttached()) {
-            return;
-        }
+
         model.resetPwd(phoneNo,code,pwd)
                 .compose(RxScheduler.Obs_io_main())
-                .to(mView.bindAutoDispose())//解决内存泄漏
-                .subscribe(new CustomObserver<BaseBean>(mView) {
+                .to(getView().bindAutoDispose())//解决内存泄漏
+                .subscribe(new CustomObserver<BaseBean>(getView()) {
                     @Override
                     public void onNext(@NotNull BaseBean bean) {
-                        mView.onSuccess(bean);
+                        getView().onSuccess(bean);
                     }
                 });
     }
 
     @Override
     public void sendCode(String phoneNo ,String randStr, String ticket ){
-        if (!isViewAttached()) {
-            return;
-        }
+
         model.sendCode(phoneNo,randStr,ticket)
                 .compose(RxScheduler.Obs_io_main())
-                .to(mView.bindAutoDispose())//解决内存泄漏
-                .subscribe(new CustomObserver<BaseBean>(mView) {
+                .to(getView().bindAutoDispose())//解决内存泄漏
+                .subscribe(new CustomObserver<BaseBean>(getView()) {
                     @Override
                     public void onNext(@NotNull BaseBean bean) {
-                        mView.onGetCodeSuccess(bean);
+                        getView().onGetCodeSuccess(bean);
                     }
                 });
     }

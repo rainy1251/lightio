@@ -17,15 +17,12 @@ import com.aiyaopai.lightio.mvp.presenter.LoginPresenter;
 import com.aiyaopai.lightio.util.Contents;
 import com.aiyaopai.lightio.util.MyToast;
 import com.aiyaopai.lightio.util.SPUtils;
-import com.aiyaopai.lightio.view.TencentValidateDialog;
 import com.aiyaopai.lightio.view.TimerCount;
-import com.qiniu.android.utils.AsyncRun;
 
 import org.greenrobot.eventbus.EventBus;
 
 public class LoginActivity extends BaseMvpActivity<LoginPresenter, ActivityLoginBinding>
-        implements LoginContract.View, View.OnClickListener, TencentValidateDialog.OnValidateSuccessListener {
-
+        implements LoginContract.View, View.OnClickListener {
 
     private LoginPresenter presenter;
 
@@ -39,22 +36,17 @@ public class LoginActivity extends BaseMvpActivity<LoginPresenter, ActivityLogin
         viewBinding.includeLogin.ivIcon.setVisibility(View.VISIBLE);
         viewBinding.includeLogin.ivBack.setVisibility(View.GONE);
         viewBinding.includeLogin.tvToolbarTitle.setVisibility(View.GONE);
-        viewBinding.includeLogin.tvRight.setVisibility(View.VISIBLE);
-        viewBinding.includeLogin.tvRight.setText("密码登录");
         initListener();
     }
 
     private void initListener() {
-        viewBinding.tvReset.setOnClickListener(this);
-        viewBinding.tvReset.setOnClickListener(this);
-        viewBinding.includeLogin.tvRight.setOnClickListener(this);
         viewBinding.tvSendCode.setOnClickListener(this);
+        viewBinding.ivLogin.setOnClickListener(this);
     }
 
     @Override
     protected void initData() {
-        presenter = new LoginPresenter();
-        presenter.attachView(this);
+        presenter = new LoginPresenter(this);
     }
 
     public static void start(Context context) {
@@ -63,19 +55,9 @@ public class LoginActivity extends BaseMvpActivity<LoginPresenter, ActivityLogin
     }
 
     @Override
-    public void onSuccess(SignInBean bean) {
-
-        SPUtils.save(Contents.Token, bean.getToken());
-        SPUtils.save(Contents.Id, bean.getId());
-        MyToast.show("登录成功");
-        EventBus.getDefault().post(new LoginSuccessEvent(true));
-        finish();
-    }
-
-    @Override
     public void onLoginCodeSuccess(SignInBean bean) {
-        SPUtils.save(Contents.Token, bean.getToken());
-        SPUtils.save(Contents.Id, bean.getId());
+        SPUtils.save(Contents.access_token, bean.getAccess_token());
+        SPUtils.save(Contents.refresh_token, bean.getRefresh_token());
         MyToast.show("登录成功");
         EventBus.getDefault().post(new LoginSuccessEvent(true));
         finish();
@@ -83,37 +65,10 @@ public class LoginActivity extends BaseMvpActivity<LoginPresenter, ActivityLogin
 
     @Override
     public void onGetCodeSuccess(BaseBean baseBean) {
-        if (baseBean.isSuccess()) {
+        if (baseBean.getMessage().equals(Contents.Success)) {
             TimerCount timer = new TimerCount(60000, 1000, viewBinding.tvSendCode);
             timer.start();
             MyToast.show("验证码已发送");
-        }
-    }
-
-    public void loginPwd(View view) {
-        String phoneNo = viewBinding.etPhone.getText().toString();
-        if (viewBinding.rlPwd.getVisibility() == View.VISIBLE) {
-            String pwd = viewBinding.etPwd.getText().toString();
-            if (TextUtils.isEmpty(phoneNo)) {
-                MyToast.show("请输入正确的手机号");
-                return;
-            }
-            if (TextUtils.isEmpty(pwd)) {
-                MyToast.show("请输入密码");
-                return;
-            }
-            presenter.login(phoneNo, pwd);
-        } else {
-            String code = viewBinding.etCode.getText().toString();
-            if (TextUtils.isEmpty(phoneNo)) {
-                MyToast.show("请输入手机号");
-                return;
-            }
-            if (TextUtils.isEmpty(code)) {
-                MyToast.show("请输入验证码");
-                return;
-            }
-            presenter.loginCode(phoneNo, code);
         }
     }
 
@@ -121,37 +76,31 @@ public class LoginActivity extends BaseMvpActivity<LoginPresenter, ActivityLogin
     @Override
     public void onClick(View v) {
         switch (v.getId()) {
-            case R.id.tv_reset:
-                SearchPwdActivity.start(LoginActivity.this);
-                break;
-            case R.id.tv_right:
-                if (viewBinding.rlPwd.getVisibility() == View.VISIBLE) {
-                    viewBinding.includeLogin.tvRight.setText("验证码登录");
-                    viewBinding.rlCode.setVisibility(View.VISIBLE);
-                    viewBinding.rlPwd.setVisibility(View.GONE);
-                } else {
-                    viewBinding.includeLogin.tvRight.setText("密码登录");
-                    viewBinding.rlCode.setVisibility(View.GONE);
-                    viewBinding.rlPwd.setVisibility(View.VISIBLE);
-                }
-                break;
-            case R.id.tv_sendCode:
+
+            case R.id.iv_login:
                 String phoneNo = viewBinding.etPhone.getText().toString();
+                String code = viewBinding.etCode.getText().toString();
                 if (TextUtils.isEmpty(phoneNo)) {
                     MyToast.show("请输入手机号");
                     return;
                 }
-                TencentValidateDialog dialog = new TencentValidateDialog(LoginActivity.this);
-                dialog.setOnValidateSuccessListener(this);
-                dialog.show();
+                if (TextUtils.isEmpty(code)) {
+                    MyToast.show("请输入验证码");
+                    return;
+                }
+                presenter.loginCode(phoneNo, code);
+                break;
+            case R.id.tv_sendCode:
+                 phoneNo = viewBinding.etPhone.getText().toString();
+                if (TextUtils.isEmpty(phoneNo)) {
+                    MyToast.show("请输入手机号");
+                    return;
+                }
+                presenter.getCode(phoneNo);
+
                 break;
 
         }
     }
 
-    @Override
-    public void validateSuccess(String randstr, String ticket) {
-        String phoneNo = viewBinding.etPhone.getText().toString();
-        AsyncRun.runInMain(() -> presenter.getCode(phoneNo, randstr, ticket));
-    }
 }

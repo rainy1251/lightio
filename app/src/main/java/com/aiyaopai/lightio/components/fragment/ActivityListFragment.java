@@ -32,10 +32,10 @@ public class ActivityListFragment extends BaseFragment<FragmentActivityListBindi
         String[] tab_key = getResources().getStringArray(R.array.list_type);
 
         //添加tab
-        for (int i = 0; i < tab_key.length; i++) {
-            viewBinding.tabLayout.addTab(viewBinding.tabLayout.newTab().setText(tab_key[i]));
-             mFragments.add( new ActivityTabFragment(tab_key[i]));
-        }
+//        for (int i = 0; i < tab_key.length; i++) {
+//            viewBinding.tabLayout.addTab(viewBinding.tabLayout.newTab().setText(tab_key[i]));
+//        }
+        mFragments.add( new ActivityTabFragment());
 
         viewBinding.vpView.setOrientation(ViewPager2.ORIENTATION_HORIZONTAL);
         HomeTabPagerAdapter mPagerAdapter = new HomeTabPagerAdapter(this,mFragments);

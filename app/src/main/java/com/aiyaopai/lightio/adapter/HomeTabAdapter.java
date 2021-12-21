@@ -25,10 +25,10 @@ public class HomeTabAdapter extends BaseQuickAdapter<ActivityListBean.ResultBean
 
     @Override
     protected void convert(@NotNull BaseViewHolder vh, ActivityListBean.ResultBean data) {
-        vh.setText(R.id.tv_title, data.getTitle());
-        GlideUtils.show(mContext, vh.getView(R.id.iv_pic), data.getBannerImage());
-        vh.setText(R.id.tv_address, data.getAddress());
-        vh.setText(R.id.tv_date, DateFormatUtils.formatDate(data.BeginAt));
+        vh.setText(R.id.tv_title, data.getName());
+        GlideUtils.show(mContext, vh.getView(R.id.iv_pic), data.getLogo());
+        vh.setText(R.id.tv_address, data.getLocation().getAddress());
+       // vh.setText(R.id.tv_date, DateFormatUtils.formatDate(data.getBeginAt()));
     }
 
 }

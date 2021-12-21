@@ -37,8 +37,8 @@ public class SearchPwdActivity extends BaseMvpActivity<SearchPwdPresenter, Activ
 
     @Override
     protected void initData() {
-        presenter = new SearchPwdPresenter();
-        presenter.attachView(this);
+        presenter = new SearchPwdPresenter(this);
+//        presenter.attachView(this);
         initListener();
     }
 

@@ -11,7 +11,7 @@ public class BaseBean {
      */
 
     private int Code;
-    private String Message;
+    private String message;
     private boolean Success;
     private String Id;
     private String Token;//上传图片令牌
@@ -26,11 +26,11 @@ public class BaseBean {
     }
 
     public String getMessage() {
-        return Message;
+        return message;
     }
 
-    public void setMessage(String Message) {
-        this.Message = Message;
+    public void setMessage(String message) {
+        this.message = message;
     }
 
     public boolean isSuccess() {

@@ -20,7 +20,6 @@ import com.aiyaopai.lightio.ptp.PtpAction;
 import com.aiyaopai.lightio.ptp.PtpCamera;
 import com.aiyaopai.lightio.ptp.PtpConstants;
 import com.aiyaopai.lightio.ptp.model.StorageInfo;
-import com.aiyaopai.lightio.util.MyLog;
 
 public class GetStorageInfosAction implements PtpAction {
 

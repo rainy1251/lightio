@@ -1,114 +1,52 @@
 package com.aiyaopai.lightio.bean;
 
-public class SignInBean {
+import java.io.Serializable;
 
-    public String getId() {
-        return Id;
+public class SignInBean implements Serializable {
+
+    public String getAccess_token() {
+        return access_token;
     }
 
-    public void setId(String id) {
-        Id = id;
+    public void setAccess_token(String access_token) {
+        this.access_token = access_token;
     }
 
-    public String getRole() {
-        return Role;
+    public int getExpires_in() {
+        return expires_in;
     }
 
-    public void setRole(String role) {
-        Role = role;
+    public void setExpires_in(int expires_in) {
+        this.expires_in = expires_in;
     }
 
-    public String getChangePasswordRequired() {
-        return ChangePasswordRequired;
+    public String getToken_type() {
+        return token_type;
     }
 
-    public void setChangePasswordRequired(String changePasswordRequired) {
-        ChangePasswordRequired = changePasswordRequired;
+    public void setToken_type(String token_type) {
+        this.token_type = token_type;
     }
 
-    public String getToken() {
-        return Token;
+    public String getRefresh_token() {
+        return refresh_token;
     }
 
-    public void setToken(String token) {
-        Token = token;
+    public void setRefresh_token(String refresh_token) {
+        this.refresh_token = refresh_token;
     }
 
-    public boolean isSuccess() {
-        return Success;
+    public boolean isRegistered() {
+        return registered;
     }
 
-    public void setSuccess(boolean success) {
-        Success = success;
+    public void setRegistered(boolean registered) {
+        this.registered = registered;
     }
 
-    public String getAvatar() {
-        return Avatar;
-    }
-
-    public void setAvatar(String avatar) {
-        Avatar = avatar;
-    }
-
-    public String getNickname() {
-        return Nickname;
-    }
-
-    public void setNickname(String nickname) {
-        Nickname = nickname;
-    }
-
-    public String getActivitiesCount() {
-        return ActivitiesCount;
-    }
-
-    public void setActivitiesCount(String activitiesCount) {
-        ActivitiesCount = activitiesCount;
-    }
-
-    public int getOriginalPicturesCount() {
-        return OriginalPicturesCount;
-    }
-
-    public void setOriginalPicturesCount(int originalPicturesCount) {
-        OriginalPicturesCount = originalPicturesCount;
-    }
-
-    public String getMessage() {
-        return Message;
-    }
-
-    public void setMessage(String message) {
-        Message = message;
-    }
-
-    public String getTitle() {
-        return Title;
-    }
-
-    public void setTitle(String title) {
-        Title = title;
-    }
-
-    public int getTotal() {
-        return Total;
-    }
-
-    public void setTotal(int total) {
-        Total = total;
-    }
-
-    public String Id; //用户 Id
-    public String Role; //用户类型
-    public String ChangePasswordRequired; //是否需要修改密码
-    public String Token; //用户令牌
-    public boolean Success; //用户令牌
-    public String Avatar; //头像
-    public String Nickname; //昵称
-    public String ActivitiesCount; //活动场次
-    public int OriginalPicturesCount; //原始照片数量
-    public String Message; //xinxi
-    public String Title; //活动名称
-    public int Total; //总数
-
+    private String access_token;
+    private int expires_in;
+    private String token_type;
+    private String refresh_token;
+    private boolean registered;
 }

@@ -91,7 +91,7 @@ dependencies {
     //读取外部储存
 //   implementation 'me.jahnen:libaums:0.8.0'
     //okhttp3
-    implementation 'com.squareup.okhttp3:okhttp:4.2.0'
+    implementation 'com.squareup.okhttp3:okhttp:4.9.3'
     implementation "com.squareup.okhttp3:logging-interceptor:3.10.0"
     //retrofit2
     implementation 'com.squareup.retrofit2:retrofit:2.9.0'

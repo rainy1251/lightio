@@ -5,23 +5,20 @@ import androidx.exifinterface.media.ExifInterface;
 import com.aiyaopai.lightio.base.BasePresenter;
 import com.aiyaopai.lightio.base.CommonObserver;
 import com.aiyaopai.lightio.base.CustomObserver;
-import com.aiyaopai.lightio.bean.ActivityListBean;
 import com.aiyaopai.lightio.bean.BaseBean;
+import com.aiyaopai.lightio.bean.OriginalPicBean;
 import com.aiyaopai.lightio.bean.PicBean;
 import com.aiyaopai.lightio.mvp.contract.NoticeContract;
 import com.aiyaopai.lightio.mvp.model.NoticeModel;
 import com.aiyaopai.lightio.net.RxScheduler;
 import com.aiyaopai.lightio.util.AppConfig;
 import com.aiyaopai.lightio.util.ModifyExif;
-import com.aiyaopai.lightio.util.MyLog;
 import com.aiyaopai.lightio.view.AppDB;
 
 import org.jetbrains.annotations.NotNull;
 
 import java.io.File;
 import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
 
 import io.reactivex.rxjava3.android.schedulers.AndroidSchedulers;
 import io.reactivex.rxjava3.annotations.NonNull;
@@ -36,50 +33,49 @@ public class NoticePresenter extends BasePresenter<NoticeContract.View> implemen
     private final NoticeModel model;
     private int syncNum = 0;
 
-    public NoticePresenter() {
-        model = new NoticeModel();
+    public NoticePresenter(NoticeContract.View view) {
+        super(view);
+        model =new NoticeModel();
     }
+
+
 
     @Override
     public void getUpLoadToken(String activityId) {
-        if (!isViewAttached()) {
-            return;
-        }
+
         model.getUpLoadToken(activityId)
                 .compose(RxScheduler.Obs_io_main())
-                .to(mView.bindAutoDispose())//解决内存泄漏
-                .subscribe(new CustomObserver<BaseBean>(mView) {
+                .to(getView().bindAutoDispose())//解决内存泄漏
+                .subscribe(new CustomObserver<BaseBean>(getView()) {
                     @Override
                     public void onNext(@NotNull BaseBean bean) {
-                        mView.getTokenSuccess(bean);
+                        getView().getTokenSuccess(bean);
                     }
                 });
     }
 
     @Override
-    public void getOriginalPic(String activityId, String photographerId, int pageIndex) {
-        if (mView == null) {
-            return;
-        }
-        model.getOriginalPic(activityId, photographerId, pageIndex)
+    public void getOriginalPic(int pageIndex,String albumId, String photographerId) {
+
+        model.getOriginalPic(pageIndex,albumId, photographerId)
                 .compose(RxScheduler.Obs_io_main())
-                .to(mView.bindAutoDispose())//解决内存泄漏
-                .subscribe(new CommonObserver<ActivityListBean>() {
+                .to(getView().bindAutoDispose())//解决内存泄漏
+                .subscribe(new CommonObserver<OriginalPicBean>() {
                     @Override
-                    public void onNext(@NotNull ActivityListBean bean) {
-                        mView.getOriginalPic(bean);
+                    public void onNext(@NotNull OriginalPicBean bean) {
+                        getView().getOriginalPic(bean);
                     }
 
                     @Override
                     public void onError(@NonNull Throwable e) {
                         super.onError(e);
-                        mView.getError();
+                        getView().getError();
                     }
                 });
     }
 
     @Override
-    public void syncData(ArrayList<ActivityListBean.ResultBean> result) {
+    public void syncData(ArrayList<OriginalPicBean.ResultBean> result) {
         Flowable.fromIterable(result).parallel(4)
                 .runOn(Schedulers.io())
                 .doOnCancel(new Action() {
@@ -87,23 +83,23 @@ public class NoticePresenter extends BasePresenter<NoticeContract.View> implemen
                     public void run() throws Throwable {
                     }
                 })
-                .map(new Function<ActivityListBean.ResultBean, Integer>() {
+                .map(new Function<OriginalPicBean.ResultBean, Integer>() {
                     @Override
-                    public Integer apply(@NonNull ActivityListBean.ResultBean bean) throws Throwable {
-
-                        if (bean.LocalKey != null) {
-                            if (bean.LocalKey.contains(":")) {
-                                String[] split = bean.LocalKey.split(":");
-                                PicBean picBean;
-                                if (split.length > 1) {
-                                    picBean = new PicBean(split[1], bean.getSize(), bean.getUrl(), split[0], 100, 1);
-                                } else {
-                                    picBean = new PicBean("YAOPAI", bean.getSize(), bean.getUrl(), "", 100, 1);
-                                }
-                                AppDB.getInstance().picDao().insert(picBean);
-                                syncNum++;
-                            }
-                        }
+                    public Integer apply(@NonNull OriginalPicBean.ResultBean bean) throws Throwable {
+//TODO
+//                        if (bean.LocalKey != null) {
+//                            if (bean.LocalKey.contains(":")) {
+//                                String[] split = bean.LocalKey.split(":");
+//                                PicBean picBean;
+//                                if (split.length > 1) {
+//                                    picBean = new PicBean(split[1], bean.getSize(), bean.getUrl(), split[0], 100, 1);
+//                                } else {
+//                                    picBean = new PicBean("YAOPAI", bean.getSize(), bean.getUrl(), "", 100, 1);
+//                                }
+//                                AppDB.getInstance().picDao().insert(picBean);
+//                                syncNum++;
+//                            }
+//                        }
                         return syncNum;
                     }
 
@@ -113,13 +109,13 @@ public class NoticePresenter extends BasePresenter<NoticeContract.View> implemen
                 .doOnComplete(new Action() {
                     @Override
                     public void run() throws Throwable {
-                        mView.syncComplete();
+                        getView().syncComplete();
                     }
                 })
                 .subscribe(new Consumer<Integer>() {
                     @Override
                     public void accept(@NonNull Integer integer) throws Exception {
-                        mView.syncNum(integer);
+                        getView().syncNum(integer);
                     }
 
                 });
@@ -130,17 +126,17 @@ public class NoticePresenter extends BasePresenter<NoticeContract.View> implemen
 
         File fileAll = new File(AppConfig.BASE_PATH, activityId);
         if (!fileAll.exists()) {
-            mView.syncSDComplete();
+            getView().syncSDComplete();
             return;
         }
         File[] files = fileAll.listFiles();
         if (files == null) {
-            mView.syncSDComplete();
+            getView().syncSDComplete();
             return;
         }
 
         if (files.length == 0) {
-            mView.syncSDComplete();
+            getView().syncSDComplete();
             return;
         }
         for (File file : files) {
@@ -152,6 +148,6 @@ public class NoticePresenter extends BasePresenter<NoticeContract.View> implemen
             AppDB.getInstance().picDao().insert(picBean);
 
         }
-        mView.syncSDComplete();
+        getView().syncSDComplete();
     }
 }

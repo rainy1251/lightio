@@ -36,8 +36,8 @@ public class RetrofitClient {
     private APIService apiService2;
     private static final boolean isDebug = BuildConfig.DEBUG;
     private final String baseUrl =isDebug ? dev_url:release_url;
-    private static final String dev_url = "https://livemanageapiv2.dev.aiyaopai.com";
-    private static final String release_url = "https://livemanageapiv2.aiyaopai.com";
+    private static final String dev_url = "https://api-sta.devops.back.aiyaopai.com";
+    private static final String release_url = "https://api-sta.devops.back.aiyaopai.com";
     private Retrofit retrofit;
     private Retrofit retrofit2;
     private OkHttpClient okHttpClient;
@@ -73,8 +73,8 @@ public class RetrofitClient {
             public Response intercept(@NonNull Chain chain) throws IOException {
                 Request original = chain.request();
                 Request.Builder requestBuilder = original.newBuilder()
-                .addHeader("User-Agent", "YAOPAI/Android "+getVersion(UiUtils.getContext()));
-                String token = SPUtils.getString(Contents.Token);
+                .addHeader("User-Agent", "LightIO/Android "+getVersion(UiUtils.getContext()));
+                String token = SPUtils.getString(Contents.access_token);
                 if (!TextUtils.isEmpty(token)) {
                     requestBuilder.addHeader("Authorization", "Bearer " + token);
                 }
@@ -207,6 +207,8 @@ public class RetrofitClient {
             if (contentLength != 0) {
                 String msg = buffer.clone().readString(charset);
                 mOnErrorCalBackListener.onError(response.code(), msg);
+            } else {
+                mOnErrorCalBackListener.onError(response.code(), "");
             }
             return response;
         };

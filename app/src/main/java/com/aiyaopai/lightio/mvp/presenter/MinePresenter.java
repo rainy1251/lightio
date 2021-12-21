@@ -4,6 +4,7 @@ import com.aiyaopai.lightio.base.BasePresenter;
 import com.aiyaopai.lightio.base.CustomObserver;
 import com.aiyaopai.lightio.bean.BaseBean;
 import com.aiyaopai.lightio.bean.SignInBean;
+import com.aiyaopai.lightio.bean.UserBean;
 import com.aiyaopai.lightio.mvp.contract.MineContract;
 import com.aiyaopai.lightio.mvp.model.MineModel;
 import com.aiyaopai.lightio.net.RxScheduler;
@@ -15,38 +16,35 @@ public class MinePresenter extends BasePresenter<MineContract.View> implements M
 
     private final MineContract.Model model;
 
-    public MinePresenter() {
+    public MinePresenter(MineContract.View view) {
+        super(view);
         model = new MineModel();
     }
 
     @Override
-    public void getUserInfo(String userId) {
-        if (!isViewAttached()) {
-            return;
-        }
-        model.getInfo(userId)
+    public void getUserInfo() {
+   
+        model.getInfo()
                 .compose(RxScheduler.Obs_io_main())
-                .to(mView.bindAutoDispose())//解决内存泄漏
-                .subscribe(new CustomObserver<SignInBean>(mView) {
+                .to(getView().bindAutoDispose())//解决内存泄漏
+                .subscribe(new CustomObserver<UserBean>(getView()) {
                     @Override
-                    public void onNext(@NotNull SignInBean bean) {
-                        mView.onSuccess(bean);
+                    public void onNext(@NotNull UserBean bean) {
+                        getView().onSuccess(bean);
                     }
                 });
     }
 
     @Override
     public void signOut() {
-        if (!isViewAttached()) {
-            return;
-        }
+   
         model.signOut()
                 .compose(RxScheduler.Obs_io_main())
-                .to(mView.bindAutoDispose())//解决内存泄漏
-                .subscribe(new CustomObserver<BaseBean>(mView) {
+                .to(getView().bindAutoDispose())//解决内存泄漏
+                .subscribe(new CustomObserver<BaseBean>(getView()) {
                     @Override
                     public void onNext(@NotNull BaseBean bean) {
-                        mView.onSignOutSuccess(bean);
+                        getView().onSignOutSuccess(bean);
                     }
                 });
     }
@@ -54,10 +52,10 @@ public class MinePresenter extends BasePresenter<MineContract.View> implements M
     @Override
     public void cleanCache() {
         model.cleanCache().compose(RxScheduler.Obs_io_main())
-                .to(mView.bindAutoDispose())//解决内存泄漏
+                .to(getView().bindAutoDispose())//解决内存泄漏
                 .subscribe(t -> {
                     if (t) {
-                        mView.onClean();
+                        getView().onClean();
                     }
                 });
     }

@@ -8,7 +8,7 @@ import io.reactivex.rxjava3.core.Observable;
 
 public interface ActivityTabContract {
     interface Model {
-        Observable<ActivityListBean> getList(int pageIndex,String type);
+        Observable<ActivityListBean> getList(int pageIndex);
     }
 
     interface View extends BaseView {
@@ -16,7 +16,7 @@ public interface ActivityTabContract {
     }
 
     interface Presenter {
-        void getList(int pageIndex,String type);
+        void getList(int pageIndex);
     }
 
 

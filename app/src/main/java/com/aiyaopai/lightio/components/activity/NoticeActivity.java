@@ -9,6 +9,7 @@ import com.aiyaopai.lightio.R;
 import com.aiyaopai.lightio.base.BaseMvpActivity;
 import com.aiyaopai.lightio.bean.ActivityListBean;
 import com.aiyaopai.lightio.bean.BaseBean;
+import com.aiyaopai.lightio.bean.OriginalPicBean;
 import com.aiyaopai.lightio.databinding.ActivityNoticeBinding;
 import com.aiyaopai.lightio.mvp.contract.NoticeContract;
 import com.aiyaopai.lightio.mvp.presenter.NoticePresenter;
@@ -19,6 +20,7 @@ import com.aiyaopai.lightio.view.AppDB;
 import com.aiyaopai.lightio.view.CommonDialog;
 
 import java.util.ArrayList;
+import java.util.List;
 
 public class NoticeActivity extends BaseMvpActivity<NoticePresenter, ActivityNoticeBinding>
         implements NoticeContract.View, View.OnClickListener, CommonDialog.OnConfirmListener {
@@ -45,8 +47,7 @@ public class NoticeActivity extends BaseMvpActivity<NoticePresenter, ActivityNot
         viewBinding.includeNotice.ivBack.setVisibility(View.VISIBLE);
         viewBinding.includeNotice.tvToolbarTitle.setVisibility(View.GONE);
 
-        presenter = new NoticePresenter();
-        presenter.attachView(this);
+        presenter = new NoticePresenter(this);
 
 
     }
@@ -58,7 +59,7 @@ public class NoticeActivity extends BaseMvpActivity<NoticePresenter, ActivityNot
         photographerId = SPUtils.getString(Contents.Id);
 
         presenter.getUpLoadToken(activityId);
-        presenter.getOriginalPic(activityId, photographerId, pageIndex);
+        presenter.getOriginalPic(pageIndex,activityId, photographerId);
 
         viewBinding.tvEnter.setOnClickListener(this);
         viewBinding.includeNotice.ivBack.setOnClickListener(this);
@@ -80,8 +81,8 @@ public class NoticeActivity extends BaseMvpActivity<NoticePresenter, ActivityNot
     }
 
     @Override
-    public void getOriginalPic(ActivityListBean bean) {
-        ArrayList<ActivityListBean.ResultBean> result = bean.getResult();
+    public void getOriginalPic(OriginalPicBean bean) {
+        ArrayList<OriginalPicBean.ResultBean> result = (ArrayList<OriginalPicBean.ResultBean>) bean.getResult();
         total = bean.getTotal();
         if (result.size() > 0) {
             presenter.syncData(result);
@@ -98,7 +99,7 @@ public class NoticeActivity extends BaseMvpActivity<NoticePresenter, ActivityNot
         if (pageIndex == 100) {
             return;
         }
-        presenter.getOriginalPic(activityId, photographerId, pageIndex);
+        presenter.getOriginalPic(pageIndex,activityId, photographerId);
     }
 
     @Override
@@ -138,7 +139,7 @@ public class NoticeActivity extends BaseMvpActivity<NoticePresenter, ActivityNot
                         pageIndex = 1;
                         AppDB.getInstance().picDao().delete();
                         presenter.getUpLoadToken(activityId);
-                        presenter.getOriginalPic(activityId, photographerId, pageIndex);
+                        presenter.getOriginalPic(pageIndex,activityId, photographerId);
                         break;
                     default:
                         MyToast.show("正在同步，请稍后");

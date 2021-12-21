@@ -66,8 +66,7 @@ public class LiveFragment extends BaseMvpFragment<LivePresenter, FragmentLiveBin
     @Override
     protected void initView() {
         ((SessionActivity) Objects.requireNonNull(getActivity())).setSessionView(this);
-        presenter = new LivePresenter();
-        presenter.attachView(this);
+        presenter = new LivePresenter(this);
         presenter.initToolbar(viewBinding);
         presenter.initRecycleView(getActivity(), viewBinding);
         initRefreshLayout(viewBinding.srlView);

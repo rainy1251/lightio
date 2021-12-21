@@ -12,10 +12,9 @@ import androidx.fragment.app.FragmentTransaction;
 
 import com.aiyaopai.lightio.R;
 import com.aiyaopai.lightio.base.BaseActivity;
-import com.aiyaopai.lightio.databinding.ActivityMainBinding;
 import com.aiyaopai.lightio.components.fragment.ActivityListFragment;
-import com.aiyaopai.lightio.components.fragment.HomeFragment;
 import com.aiyaopai.lightio.components.fragment.MineFragment;
+import com.aiyaopai.lightio.databinding.ActivityMainBinding;
 import com.aiyaopai.lightio.util.MyToast;
 import com.aiyaopai.lightio.util.PermissionUtils;
 import com.aiyaopai.lightio.view.AppDB;
@@ -28,10 +27,11 @@ import java.util.List;
 import java.util.Timer;
 import java.util.TimerTask;
 
-public class MainActivity extends BaseActivity<ActivityMainBinding> implements BottomNavigationView.OnNavigationItemSelectedListener{
+public class MainActivity extends BaseActivity<ActivityMainBinding> implements BottomNavigationView.OnNavigationItemSelectedListener {
 
     private List<Fragment> fragments;
-    private  boolean isExit;
+    private boolean isExit;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -49,14 +49,17 @@ public class MainActivity extends BaseActivity<ActivityMainBinding> implements B
 //        ActivityMainBinding binding = ActivityMainBinding.inflate(getLayoutInflater());
 //        View view = binding.root;
 //        setContentView(view);
+
+
         viewBinding.bottomNavBar.setItemIconTintList(null);
         viewBinding.bottomNavBar.setOnNavigationItemSelectedListener(this);
         requestExternalRW();
     }
+
     @Override
     protected void initData() {
         fragments = new ArrayList<>();
-        fragments.add(new HomeFragment());
+       // fragments.add(new HomeFragment());
         fragments.add(new ActivityListFragment());
         fragments.add(new MineFragment());
         setFragmentPosition(0);
@@ -66,23 +69,24 @@ public class MainActivity extends BaseActivity<ActivityMainBinding> implements B
     @SuppressLint("NonConstantResourceId")
     @Override
     public boolean onNavigationItemSelected(@NonNull @NotNull MenuItem item) {
-        switch (item.getItemId()){
-            case R.id.home:
+        switch (item.getItemId()) {
+//            case R.id.home:
+//                setFragmentPosition(0);
+//                return true;
+            case R.id.live:
                 setFragmentPosition(0);
                 return true;
-            case R.id.live:
-                setFragmentPosition(1);
-                return true;
             case R.id.mine:
-                setFragmentPosition(2);
+                setFragmentPosition(1);
                 return true;
         }
         return true;
     }
 
     private int lastIndex = 0;
-    private void  setFragmentPosition(int position) {
-        FragmentTransaction  ft = getSupportFragmentManager().beginTransaction();
+
+    private void setFragmentPosition(int position) {
+        FragmentTransaction ft = getSupportFragmentManager().beginTransaction();
         Fragment currentFragment = fragments.get(position);
         Fragment lastFragment = fragments.get(lastIndex);
         lastIndex = position;

@@ -38,8 +38,7 @@ public class HomeTabFragment extends BaseMvpFragment<HomeTabPresenter, FragmentH
 
     @Override
     protected void initView() {
-        homeTabPresenter = new HomeTabPresenter();
-        homeTabPresenter.attachView(this);
+        homeTabPresenter = new HomeTabPresenter(this);
         initRefreshLayout(viewBinding.srlView);
     }
 
@@ -58,7 +57,7 @@ public class HomeTabFragment extends BaseMvpFragment<HomeTabPresenter, FragmentH
         mAdapter.setOnItemClickListener((adapter, view, position) -> {
             List<ActivityListBean.ResultBean> data = (List<ActivityListBean.ResultBean>)adapter.getData();
             String url =Contents.ACTIVITY_URL+data.get(position).getId();
-            WebActivity.start(getActivity(),url,data.get(position).getTitle());
+            WebActivity.start(getActivity(),url,data.get(position).getName());
 
         });
     }
@@ -85,10 +84,10 @@ public class HomeTabFragment extends BaseMvpFragment<HomeTabPresenter, FragmentH
 
     @Override
     public void onSuccess(ActivityListBean activityListBean) {
-        ArrayList<ActivityListBean.ResultBean> result = activityListBean.getResult();
-        dataList.addAll(result);
-        mAdapter.setDiffNewData(result);
-        mAdapter.notifyDataSetChanged();
+        //ArrayList<ActivityListBean.ResultBean> result = activityListBean.getResult();
+//        dataList.addAll(result);
+//        mAdapter.setDiffNewData(result);
+//        mAdapter.notifyDataSetChanged();
 
     }
 }

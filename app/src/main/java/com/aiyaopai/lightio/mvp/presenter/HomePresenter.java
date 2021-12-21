@@ -15,22 +15,20 @@ public class HomePresenter extends BasePresenter<HomeContract.View> implements H
 
     private HomeContract.Model model;
 
-    public HomePresenter() {
+    public HomePresenter(HomeContract.View view) {
+        super(view);
         model = new HomeModel();
     }
 
     @Override
     public void banner() {
-        if (!isViewAttached()) {
-            return;
-        }
         model.banner()
                 .compose(RxScheduler.Obs_io_main())
-                .to(mView.bindAutoDispose())//解决内存泄漏
-                .subscribe(new CustomObserver<List<BannerBean>>(mView) {
+                .to(getView().bindAutoDispose())//解决内存泄漏
+                .subscribe(new CustomObserver<List<BannerBean>>(getView()) {
                     @Override
                     public void onNext(@NotNull List<BannerBean> banners) {
-                        mView.onSuccess(banners);
+                        getView().onSuccess(banners);
                     }
                 });
     }

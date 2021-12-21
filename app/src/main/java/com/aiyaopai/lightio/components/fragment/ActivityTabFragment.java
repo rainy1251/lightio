@@ -31,11 +31,6 @@ public class ActivityTabFragment extends BaseMvpFragment<ActivityTabPresenter, F
     private ActivityListAdapter mAdapter;
     private ActivityTabPresenter presenter;
     private int pageIndex = 1;
-    private String mType;
-
-    public ActivityTabFragment(String type) {
-        this.mType = type;
-    }
 
     public ActivityTabFragment() {
 
@@ -43,8 +38,8 @@ public class ActivityTabFragment extends BaseMvpFragment<ActivityTabPresenter, F
 
     @Override
     protected void initView() {
-        presenter = new ActivityTabPresenter();
-        presenter.attachView(this);
+        presenter = new ActivityTabPresenter(this);
+
         initRefreshLayout(viewBinding.srlView);
         EventBus.getDefault().register(this);
     }
@@ -52,7 +47,7 @@ public class ActivityTabFragment extends BaseMvpFragment<ActivityTabPresenter, F
     @Override
     protected void initData() {
 
-        presenter.getList(pageIndex, mType);
+        presenter.getList(pageIndex);
         dataList = new ArrayList<>();
         mAdapter = new ActivityListAdapter(getActivity(), R.layout.item_list_tab, dataList);
         LinearLayoutManager manager = new LinearLayoutManager(getActivity());
@@ -60,10 +55,10 @@ public class ActivityTabFragment extends BaseMvpFragment<ActivityTabPresenter, F
         viewBinding.rvView.setAdapter(mAdapter);
         viewBinding.rvView.addItemDecoration(new SpaceItemDecoration(0, 10));
         mAdapter.setEmptyView(R.layout.empty_layout);
+
         mAdapter.setOnItemClickListener((adapter, view, position) -> {
             Intent intent = new Intent(getActivity(), NoticeActivity.class);
-//            intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-            intent.putExtra(Contents.Title, dataList.get(position).getTitle());
+            intent.putExtra(Contents.Title, dataList.get(position).getName());
             intent.putExtra(Contents.ActivityId, dataList.get(position).getId());
             startActivity(intent);
 
@@ -76,7 +71,7 @@ public class ActivityTabFragment extends BaseMvpFragment<ActivityTabPresenter, F
     public void loadMore() {
         super.loadMore();
         pageIndex++;
-        presenter.getList(pageIndex, mType);
+        presenter.getList(pageIndex);
     }
 
     @Override
@@ -84,7 +79,7 @@ public class ActivityTabFragment extends BaseMvpFragment<ActivityTabPresenter, F
         super.refresh();
         pageIndex = 1;
         dataList.clear();
-        presenter.getList(pageIndex, mType);
+        presenter.getList(pageIndex);
     }
 
     @Subscribe(threadMode = ThreadMode.MAIN)
@@ -92,7 +87,7 @@ public class ActivityTabFragment extends BaseMvpFragment<ActivityTabPresenter, F
         if (event.isLogin()) {
             pageIndex = 1;
             dataList.clear();
-            presenter.getList(pageIndex, mType);
+            presenter.getList(pageIndex);
         }
     }
 
@@ -103,7 +98,7 @@ public class ActivityTabFragment extends BaseMvpFragment<ActivityTabPresenter, F
 
     @Override
     public void onSuccess(ActivityListBean bean) {
-        ArrayList<ActivityListBean.ResultBean> result = bean.getResult();
+        List<ActivityListBean.ResultBean> result = bean.getResult();
         if (pageIndex > 1 && result.size() == 0) {
             MyToast.show("没有更多了");
         }

@@ -13,22 +13,20 @@ public class ActivityTabPresenter extends BasePresenter<ActivityTabContract.View
 
     private final ActivityTabContract.Model model;
 
-    public ActivityTabPresenter() {
+    public ActivityTabPresenter(ActivityTabContract.View view) {
+        super(view);
         model = new ActivityTabModel();
     }
 
     @Override
-    public void getList(int pageIndex,String type) {
-        if (!isViewAttached()) {
-            return;
-        }
-        model.getList(pageIndex,type)
+    public void getList(int pageIndex) {
+        model.getList(pageIndex)
                 .compose(RxScheduler.Obs_io_main())
-                .to(mView.bindAutoDispose())//解决内存泄漏
-                .subscribe(new CustomObserver<ActivityListBean>(mView) {
+                .to(getView().bindAutoDispose())//解决内存泄漏
+                .subscribe(new CustomObserver<ActivityListBean>(getView()) {
                     @Override
                     public void onNext(@NotNull ActivityListBean bean) {
-                        mView.onSuccess(bean);
+                        getView().onSuccess(bean);
                     }
                 });
     }

@@ -3,13 +3,14 @@ package com.aiyaopai.lightio.mvp.contract;
 import com.aiyaopai.lightio.base.BaseView;
 import com.aiyaopai.lightio.bean.BaseBean;
 import com.aiyaopai.lightio.bean.SignInBean;
+import com.aiyaopai.lightio.bean.UserBean;
 
 import io.reactivex.rxjava3.core.Observable;
 
 public interface MineContract {
 
     interface Model {
-        Observable<SignInBean> getInfo(String userId);
+        Observable<UserBean> getInfo();
 
         Observable<BaseBean> signOut();
 
@@ -17,13 +18,13 @@ public interface MineContract {
     }
 
     interface Presenter {
-        void getUserInfo(String userId);
+        void getUserInfo();
         void signOut();
         void cleanCache();
     }
 
     interface View extends BaseView {
-        void onSuccess(SignInBean bean);
+        void onSuccess(UserBean bean);
 
         void onSignOutSuccess(BaseBean bean);
 

@@ -9,7 +9,6 @@ import com.aiyaopai.lightio.R;
 import com.aiyaopai.lightio.adapter.PicAdapter;
 import com.aiyaopai.lightio.base.BasePresenter;
 import com.aiyaopai.lightio.base.CommonObserver;
-import com.aiyaopai.lightio.base.CustomObserver;
 import com.aiyaopai.lightio.bean.PicBean;
 import com.aiyaopai.lightio.databinding.FragmentLiveBinding;
 import com.aiyaopai.lightio.mvp.contract.LiveContract;
@@ -18,7 +17,6 @@ import com.aiyaopai.lightio.net.qiniu.QiNiuImageSubscribe;
 import com.aiyaopai.lightio.ptp.Camera;
 import com.aiyaopai.lightio.util.Contents;
 import com.aiyaopai.lightio.util.FilesUtil;
-import com.aiyaopai.lightio.util.MyLog;
 import com.aiyaopai.lightio.util.SPUtils;
 import com.aiyaopai.lightio.view.AppDB;
 import com.aiyaopai.lightio.view.SpaceItemDecoration;
@@ -48,7 +46,8 @@ public class LivePresenter extends BasePresenter<LiveContract.View> implements L
     private int progress = 0;
     private List<Integer> picIds;
 
-    public LivePresenter() {
+    public LivePresenter(LiveContract.View view) {
+        super(view);
     }
 
     @Override
@@ -70,7 +69,7 @@ public class LivePresenter extends BasePresenter<LiveContract.View> implements L
         binding.rvView.setAdapter(mAdapter);
         binding.rvView.addItemDecoration(new SpaceItemDecoration(10, 20));
         mAdapter.setEmptyView(R.layout.empty_layout);
-        mView.getRecycleViewData(dataList, mAdapter);
+        getView().getRecycleViewData(dataList, mAdapter);
     }
 
     @Override
@@ -132,7 +131,7 @@ public class LivePresenter extends BasePresenter<LiveContract.View> implements L
                 .observeOn(AndroidSchedulers.mainThread()).doOnComplete(new Action() {
             @Override
             public void run() throws Throwable {
-                mView.scanIdComplete(picIds);
+                getView().scanIdComplete(picIds);
             }
         }).subscribe(new Consumer<String>() {
             @Override
@@ -159,7 +158,7 @@ public class LivePresenter extends BasePresenter<LiveContract.View> implements L
 //                    @Override
 //                    public void onNext(Integer integer) {
 //                        MyLog.show(integer+" ===integer");
-//                        mView.setLocalNum(integer);
+//                        getView().setLocalNum(integer);
 //                    }
 //
 //                    @Override
@@ -186,19 +185,19 @@ public class LivePresenter extends BasePresenter<LiveContract.View> implements L
                             emitter.onComplete();
                         }, id)))
                 .compose(RxScheduler.Obs_io_main())
-                .to(mView.bindAutoDispose())
+                .to(getView().bindAutoDispose())
                 .subscribe(new CommonObserver<String>() {
                     @Override
                     public void onNext(String s) {
                         progress++;
-                        mView.getScanProgress(progress);
+                        getView().getScanProgress(progress);
                     }
 
                     @Override
                     public void onComplete() {
                         super.onComplete();
 
-                        mView.getScanComplete();
+                        getView().getScanComplete();
                     }
                 });
     }
@@ -220,11 +219,11 @@ public class LivePresenter extends BasePresenter<LiveContract.View> implements L
                     }
                 })
                 .compose(RxScheduler.Obs_io_main())
-                .to(mView.bindAutoDispose())
+                .to(getView().bindAutoDispose())
                 .subscribe(new CommonObserver<PicBean>() {
                     @Override
                     public void onNext(@NonNull PicBean picBean) {
-                        mView.getUploadNext(picBean);
+                        getView().getUploadNext(picBean);
                     }
                 });
     }
@@ -243,7 +242,7 @@ public class LivePresenter extends BasePresenter<LiveContract.View> implements L
                     FilesUtil.getFileFromBytes(activityId, uploadMode,
                             byteBuffer.array(), length, info.filename, objectHandle, info.captureDate, photoPx);
                     PicBean byId = AppDB.getInstance().picDao().findById(String.valueOf(picId));
-                    mView.getUploadSingleAdd(byId);
+                    getView().getUploadSingleAdd(byId);
                     emitter.onNext(byId);
                     emitter.onComplete();
                 }, picId);
@@ -255,11 +254,11 @@ public class LivePresenter extends BasePresenter<LiveContract.View> implements L
 
             }
         }).compose(RxScheduler.Obs_io_main())
-                .to(mView.bindAutoDispose())
+                .to(getView().bindAutoDispose())
                 .subscribe(new CommonObserver<PicBean>() {
                     @Override
                     public void onNext(PicBean bean) {
-                        mView.getUploadSingleNext(bean);
+                        getView().getUploadSingleNext(bean);
                     }
                 })
         ;
@@ -284,11 +283,11 @@ public class LivePresenter extends BasePresenter<LiveContract.View> implements L
                 }, picId);
             }
         }).compose(RxScheduler.Obs_io_main())
-                .to(mView.bindAutoDispose())
+                .to(getView().bindAutoDispose())
                 .subscribe(new CommonObserver<PicBean>() {
                     @Override
                     public void onNext(PicBean bean) {
-                        mView.getUploadHandAdd(bean);
+                        getView().getUploadHandAdd(bean);
                     }
                 })
         ;
@@ -346,7 +345,7 @@ public class LivePresenter extends BasePresenter<LiveContract.View> implements L
                 .subscribe(new Consumer<Map<String, List<PicBean>>>() {
                     @Override
                     public void accept(Map<String, List<PicBean>> map) throws Throwable {
-                        mView.getAllPics(map);
+                        getView().getAllPics(map);
                     }
                 });
     }
@@ -375,7 +374,7 @@ public class LivePresenter extends BasePresenter<LiveContract.View> implements L
                 .subscribe(new CommonObserver<PicBean>() {
                     @Override
                     public void onNext(PicBean bean) {
-                        mView.getUploadHandNext(bean);
+                        getView().getUploadHandNext(bean);
                     }
                 });
     }

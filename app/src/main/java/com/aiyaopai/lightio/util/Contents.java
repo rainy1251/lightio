@@ -3,32 +3,33 @@ package com.aiyaopai.lightio.util;
 import static com.aiyaopai.lightio.BuildConfig.DEBUG;
 
 public class Contents  {
-    public static final String ImageUrl = "imageurl";
-    public static final String EndAtBegin = "EndAtBegin";
-    public static final String PublishPicturesCount = "PublishPicturesCount";
+
     public static final String Deleted = "Deleted";
     public static final String OfficialSiteEnabled = "OfficialSiteEnabled";
-    public static final String CustomerId = "CustomerId";
-    public static final String LoginId = "loginId";
-    public static final String FranchiseeId = "FranchiseeId";
-    public static final String Watermark = "Watermark";
-    public static final String PictureHandler = "PictureHandler";
-    public static final String SmallThum = "?imageView2/1/w/600/h/400";//小缩略图
-    public static final String HomeType = "hometype";
-    public static final String SendMessSuccess = "sendmesssuccess";//发送消息成功/失败
-    public static final String UserId = "UserId";
-    public static final String UserRole = "UserRole";
-    public static final String FriendUserId = "FriendUserId";
-    public static final String FriendUserRole = "FriendUserRole";
+
     public static final String Rolecode = "rolecode";
+
+
     public static final String Api = "Api";
-    public static final String ImSendRole = "imsendRole";
-    public static final String Hidden = "Hidden";
+
+    public static final String client_id = "client_id";
+    public static final String grant_type = "grant_type";
+    public static final String Success = "Success";
+    public static final String PhoneNo = "phoneNo";
+    public static final String CountryCode = "countryCode";
+    public static final String code = "code";
+    public static final String access_token = "access_token";
+    public static final String refresh_token = "refresh_token";
+    public static final String offset = "offset";
+    public static final String limit = "limit";
+    public static final String roles = "roles";
+
+
+
+
     public static final String TagNames = "TagNames";
     public static final String ActivityId = "activityId";
     public static final String Total = "total";
-
-
     public static final String APP_ID = "wxd3b76a4070d1e98d";  //release
     //    public static final String APP_ID = "wxa453d50368c692ef"; //Debug
     public static final String AppSecret = "15431961474850e0dc9c8313e5ce9d1316021bfbe1bd2";
@@ -41,7 +42,7 @@ public class Contents  {
 
 
 
-    public static final String PhoneNo = "PhoneNo";
+
 
     public static final String Password = "Password";
     public static final String OldPassword = "OldPassword";
@@ -56,22 +57,12 @@ public class Contents  {
     public static final String TencentCaptchaValidate = "TencentCaptchaValidate";
     public static final String RandStr = "RandStr";
     public static final String PassWord = "PassWord";
-    public static final String Code = "Code";
+
     public static final String BeginAt = "BeginAt";
     public static final String EndAt = "EndAt";
 
-    public static final String HasTitle = "HasTitle";
     public static final String Id = "Id";
-    public static final String IMToken = "IMToken";
     public static final String Title = "Title";
-    public static final String DescriptionTitle = "DescriptionTitle";
-    public static final String Description = "Description";
-    public static final String CategoryId = "CategoryId";
-    public static final String Name = "Name";
-    public static final int IntentCode = 1001;
-    public static final String Result = "result";
-    public static final String Position = "position";
-    public static final String ClassResult = "classResult";
     public static final String PrevId = "PrevId";//PrevId
     public static final String Avatar = "Avatar";
     public static final String Nickname = "Nickname";
@@ -80,7 +71,7 @@ public class Contents  {
     public static final String BuglyAppIdRelease = "eeba935b2e";
     public static final String BuglyAppId = DEBUG?BuglyAppIdDebug:BuglyAppIdRelease;
 
-    public static final String Token = "Token";
+
     public static final String QiNiuToken = "QiNiuToken";
     public static final float TopHeight = 25;//沉浸式顶部距离
     public static final int Code_200 =  200	;//请求成功	接口成功执行会返回该状态码

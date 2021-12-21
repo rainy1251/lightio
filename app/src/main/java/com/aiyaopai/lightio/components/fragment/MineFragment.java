@@ -6,6 +6,7 @@ import android.net.Uri;
 import android.view.View;
 
 import com.aiyaopai.lightio.R;
+import com.aiyaopai.lightio.bean.UserBean;
 import com.aiyaopai.lightio.components.activity.LoginActivity;
 import com.aiyaopai.lightio.components.activity.SearchPwdActivity;
 import com.aiyaopai.lightio.base.BaseMvpFragment;
@@ -41,11 +42,9 @@ public class MineFragment extends BaseMvpFragment<MinePresenter, FragmentMineBin
 
     @Override
     protected void initData() {
-        presenter = new MinePresenter();
-        presenter.attachView(this);
+        presenter = new MinePresenter(this);
 
-        String id = SPUtils.getString(Contents.Id);
-        presenter.getUserInfo(id);
+        presenter.getUserInfo();
         setCache();
         upData(false);
         initListener();
@@ -57,9 +56,11 @@ public class MineFragment extends BaseMvpFragment<MinePresenter, FragmentMineBin
     }
 
     @Override
-    public void onSuccess(SignInBean bean) {
-        viewBinding.tvName.setText(bean.Nickname);
-        GlideUtils.showHead(getActivity(), viewBinding.ivImg, bean.Avatar);
+    public void onSuccess(UserBean bean) {
+
+        viewBinding.tvName.setText(bean.getNickname());
+        GlideUtils.showHead(getActivity(), viewBinding.ivImg, bean.getAvatar());
+        SPUtils.save(Contents.Id,bean.getId());
 
     }
 
@@ -68,7 +69,8 @@ public class MineFragment extends BaseMvpFragment<MinePresenter, FragmentMineBin
         if (!bean.isSuccess()) {
             return;
         }
-        SPUtils.save(Contents.Token, "");
+        SPUtils.save(Contents.access_token, "");
+        SPUtils.save(Contents.refresh_token, "");
         SPUtils.save(Contents.Id, "");
         viewBinding.tvName.setText("请登录");
         MyToast.show("退出成功");
@@ -85,7 +87,7 @@ public class MineFragment extends BaseMvpFragment<MinePresenter, FragmentMineBin
     public void loginEvent(LoginSuccessEvent event) {
         String id = SPUtils.getString(Contents.Id);
         if (event.isLogin()) {
-            presenter.getUserInfo(id);
+            presenter.getUserInfo();
         }
     }
 

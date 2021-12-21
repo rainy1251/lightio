@@ -114,7 +114,7 @@ public abstract class BaseMvpActivity<P extends BasePresenter,T extends ViewBind
             if (msg.what == 0) {
                 MyToast.show((String) msg.obj);
             } else {
-                SPUtils.remove(Contents.Token);
+                SPUtils.remove(Contents.access_token);
                 LoginActivity.start(mContext);
             }
         }

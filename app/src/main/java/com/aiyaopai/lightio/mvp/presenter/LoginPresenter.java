@@ -14,48 +14,33 @@ public class LoginPresenter extends BasePresenter<LoginContract.View> implements
 
     private final LoginContract.Model model;
 
-    public LoginPresenter() {
+    public LoginPresenter(LoginContract.View view) {
+        super(view);
         model = new LoginModel();
     }
 
     @Override
-    public void login(String phoneNo, String pwd) {
-        if (!isViewAttached()) {
-            return;
-        }
-        model.loginPwd(phoneNo,pwd).compose(RxScheduler.Obs_io_main())
-                .to(mView.bindAutoDispose())//解决内存泄漏
-                .subscribe(new CustomObserver<SignInBean>(mView) {
-                    @Override
-                    public void onNext(@NotNull SignInBean bean) {
-                        mView.onSuccess(bean);
-                    }
-                });
-    }
-
-    @Override
     public void loginCode(String phoneNo, String pwd) {
-        if (!isViewAttached()) {
-            return;
-        }
-        model.loginCode(phoneNo,pwd).compose(RxScheduler.Obs_io_main())
-                .to(mView.bindAutoDispose())//解决内存泄漏
-                .subscribe(new CustomObserver<SignInBean>(mView) {
+
+        model.loginCode(phoneNo, pwd).compose(RxScheduler.Obs_io_main())
+                .to(getView().bindAutoDispose())
+                .subscribe(new CustomObserver<SignInBean>(getView()) {
                     @Override
                     public void onNext(@NotNull SignInBean bean) {
-                        mView.onSuccess(bean);
+                        getView().onLoginCodeSuccess(bean);
                     }
                 });
+
     }
 
     @Override
-    public void getCode(String phoneNo, String randStr, String ticket) {
-        model.getCode(phoneNo,randStr,ticket).compose(RxScheduler.Obs_io_main())
-                .to(mView.bindAutoDispose())//解决内存泄漏
-                .subscribe(new CustomObserver<BaseBean>(mView) {
+    public void getCode(String phoneNo) {
+        model.getCode(phoneNo).compose(RxScheduler.Obs_io_main())
+                .to(getView().bindAutoDispose())
+                .subscribe(new CustomObserver<BaseBean>(getView()) {
                     @Override
                     public void onNext(@NotNull BaseBean bean) {
-                        mView.onGetCodeSuccess(bean);
+                        getView().onGetCodeSuccess(bean);
                     }
                 });
     }

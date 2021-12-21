@@ -14,33 +14,23 @@ import io.reactivex.rxjava3.core.Observable;
 public class LoginModel implements LoginContract.Model {
 
     @Override
-    public Observable<SignInBean> loginPwd(String phoneNo, String pwd) {
-        Map<String, Object> map = new HashMap<>();
-        map.put(Contents.Api, "Account.SignIn");
-        map.put(Contents.PhoneNo, phoneNo);
-        map.put(Contents.PassWord, pwd);
-        map.put(Contents.Role, "Photographer");
-        return RetrofitClient.getServer().loginPwd(map);
-    }
-
-    @Override
     public Observable<SignInBean> loginCode(String phoneNo, String code) {
         HashMap<String, Object> map = new HashMap<>();
-        map.put(Contents.Api, "Account.SignInWithPhoneNoVerify");
-        map.put(Contents.PhoneNo, phoneNo);
-        map.put(Contents.Code, code);
-        map.put(Contents.Role, "Photographer");
-        return RetrofitClient.getServer().loginCode(map);
+        map.put(Contents.client_id, "web");
+        map.put(Contents.grant_type, "sms");
+        map.put(Contents.CountryCode, 86);
+        map.put(Contents.PhoneNo,phoneNo);
+        map.put(Contents.code, code);
+       return RetrofitClient.getServer().loginCode(map);
+
     }
 
     @Override
-    public Observable<BaseBean> getCode(String phoneNo, String randStr, String ticket) {
+    public Observable<BaseBean> getCode(String phoneNo) {
         Map<String, Object> map = new HashMap<>();
-        map.put(Contents.Api, "Account.SignInWithPhoneNo");
         map.put(Contents.PhoneNo, phoneNo);
-        map.put(Contents.Role, "Photographer");
-        map.put(Contents.TencentCaptchaValidate, ticket);
-        map.put(Contents.RandStr, randStr);
+        map.put(Contents.CountryCode, "86");
         return RetrofitClient.getServer().sendCode(map);
     }
+
 }

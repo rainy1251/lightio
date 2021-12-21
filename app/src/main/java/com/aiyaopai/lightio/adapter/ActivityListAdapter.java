@@ -5,12 +5,14 @@ import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
+import android.text.format.DateUtils;
 import android.view.View;
 
 
 import com.aiyaopai.lightio.R;
 import com.aiyaopai.lightio.bean.ActivityListBean;
 import com.aiyaopai.lightio.util.Contents;
+import com.aiyaopai.lightio.util.DateFormatUtils;
 import com.aiyaopai.lightio.util.GlideUtils;
 import com.aiyaopai.lightio.view.QrCodeDialog;
 import com.chad.library.adapter.base.BaseQuickAdapter;
@@ -34,11 +36,11 @@ public class ActivityListAdapter extends BaseQuickAdapter<ActivityListBean.Resul
 
     @Override
     protected void convert(@NotNull BaseViewHolder vh, ActivityListBean.ResultBean data) {
-        String beginAt = data.getBeginAt().substring(0, 10).replace("-", ".");
-        String endAt = data.getEndAt().substring(0, 10).replace("-", ".");
-        vh.setText(R.id.tv_title, data.getTitle());
-        GlideUtils.show(mContext, vh.getView(R.id.iv_image), data.getBannerImage());
-        vh.setText(R.id.tv_address, "活动地点：\n" + data.getAddress());
+        String beginAt = DateFormatUtils.formatMils((long) (data.getBeginAt()*1000));
+        String endAt = DateFormatUtils.formatMils((long) (data.getEndAt()*1000));
+        vh.setText(R.id.tv_title, data.getName());
+        GlideUtils.show(mContext, vh.getView(R.id.iv_image), data.getLogo());
+        vh.setText(R.id.tv_address, "活动地点：\n" + data.getLocation().getAddress());
         vh.setText(R.id.tv_date, "活动时间：\n" +beginAt+"--"+endAt);
         View view = vh.getView(R.id.tv_share);
         view.setOnClickListener(v -> createQrCode(data.getId()));

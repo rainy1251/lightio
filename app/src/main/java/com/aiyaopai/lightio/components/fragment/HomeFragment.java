@@ -46,9 +46,9 @@ public class HomeFragment extends BaseMvpFragment<HomePresenter, FragmentHomeBin
 
     @Override
     protected void initData() {
-        mPresenter = new HomePresenter();
-        mPresenter.attachView(this);
+        mPresenter = new HomePresenter(this);
         mPresenter.banner();
+
 
         String[] tab_key = getResources().getStringArray(R.array.home_tab_key);
         String[] tab_value = getResources().getStringArray(R.array.home_tab_value);
