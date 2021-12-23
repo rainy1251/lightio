@@ -65,15 +65,14 @@ public class MineFragment extends BaseMvpFragment<MinePresenter, FragmentMineBin
     }
 
     @Override
-    public void onSignOutSuccess(BaseBean bean) {
-        if (!bean.isSuccess()) {
-            return;
-        }
+    public void onSignOutSuccess() {
+
         SPUtils.save(Contents.access_token, "");
         SPUtils.save(Contents.refresh_token, "");
         SPUtils.save(Contents.Id, "");
         viewBinding.tvName.setText("请登录");
         MyToast.show("退出成功");
+        EventBus.getDefault().post(new LoginSuccessEvent(true));
         LoginActivity.start(getActivity());
     }
 

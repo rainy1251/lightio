@@ -7,8 +7,6 @@ import android.view.View;
 
 import com.aiyaopai.lightio.R;
 import com.aiyaopai.lightio.base.BaseMvpActivity;
-import com.aiyaopai.lightio.bean.ActivityListBean;
-import com.aiyaopai.lightio.bean.BaseBean;
 import com.aiyaopai.lightio.bean.OriginalPicBean;
 import com.aiyaopai.lightio.databinding.ActivityNoticeBinding;
 import com.aiyaopai.lightio.mvp.contract.NoticeContract;
@@ -20,7 +18,6 @@ import com.aiyaopai.lightio.view.AppDB;
 import com.aiyaopai.lightio.view.CommonDialog;
 
 import java.util.ArrayList;
-import java.util.List;
 
 public class NoticeActivity extends BaseMvpActivity<NoticePresenter, ActivityNoticeBinding>
         implements NoticeContract.View, View.OnClickListener, CommonDialog.OnConfirmListener {
@@ -28,7 +25,7 @@ public class NoticeActivity extends BaseMvpActivity<NoticePresenter, ActivityNot
     private NoticePresenter presenter;
     private String photographerId;
     private String activityId;
-    private int pageIndex = 1;
+    private int pageIndex = 0;
     private String title;
     private int total;
     private CommonDialog dialog;
@@ -46,10 +43,7 @@ public class NoticeActivity extends BaseMvpActivity<NoticePresenter, ActivityNot
         viewBinding.includeNotice.ivIcon.setVisibility(View.VISIBLE);
         viewBinding.includeNotice.ivBack.setVisibility(View.VISIBLE);
         viewBinding.includeNotice.tvToolbarTitle.setVisibility(View.GONE);
-
         presenter = new NoticePresenter(this);
-
-
     }
 
     @Override
@@ -58,17 +52,10 @@ public class NoticeActivity extends BaseMvpActivity<NoticePresenter, ActivityNot
         title = getIntent().getStringExtra(Contents.Title);
         photographerId = SPUtils.getString(Contents.Id);
 
-        presenter.getUpLoadToken(activityId);
         presenter.getOriginalPic(pageIndex,activityId, photographerId);
 
         viewBinding.tvEnter.setOnClickListener(this);
         viewBinding.includeNotice.ivBack.setOnClickListener(this);
-    }
-
-    @Override
-    public void getTokenSuccess(BaseBean bean) {
-        token = bean.getToken();
-
     }
 
     @Override
@@ -136,9 +123,8 @@ public class NoticeActivity extends BaseMvpActivity<NoticePresenter, ActivityNot
                         finish();
                         break;
                     case 2:
-                        pageIndex = 1;
+                        pageIndex = 0;
                         AppDB.getInstance().picDao().delete();
-                        presenter.getUpLoadToken(activityId);
                         presenter.getOriginalPic(pageIndex,activityId, photographerId);
                         break;
                     default:

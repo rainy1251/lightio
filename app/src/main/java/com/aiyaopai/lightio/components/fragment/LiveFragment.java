@@ -14,6 +14,7 @@ import android.widget.ProgressBar;
 import android.widget.TextView;
 
 import com.aiyaopai.lightio.R;
+import com.aiyaopai.lightio.bean.BaseBean;
 import com.aiyaopai.lightio.components.activity.SettingActivity;
 import com.aiyaopai.lightio.adapter.PicAdapter;
 import com.aiyaopai.lightio.base.BaseMvpFragment;
@@ -327,6 +328,11 @@ public class LiveFragment extends BaseMvpFragment<LivePresenter, FragmentLiveBin
     }
 
     @Override
+    public void getTokenSuccess(BaseBean bean) {
+
+    }
+
+    @Override
     public void getRecycleViewData(List<PicBean> dataList, PicAdapter adapter) {
         this.dataList = dataList;
         this.mAdapter = adapter;
@@ -413,7 +419,7 @@ public class LiveFragment extends BaseMvpFragment<LivePresenter, FragmentLiveBin
             if (pics2 != null && pics2.size() > 0) {
                 dataList.addAll(0, pics2);
                 mAdapter.notifyDataSetChanged();
-                presenter.upLoadPic(pics2, qiNiuToken);//上传全部未上传的照片
+                presenter.upLoadPic(pics2, activityId);//上传全部未上传的照片
             }
         }
 

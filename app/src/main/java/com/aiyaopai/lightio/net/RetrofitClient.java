@@ -109,7 +109,7 @@ public class RetrofitClient {
                 okHttpClient = new OkHttpClient().newBuilder()
 
                         //设置Header
-                        .addInterceptor(getHeaderInterceptor())
+                        .addInterceptor(new TokenInterceptor())
                         .addInterceptor(errorCodeInterceptor())
                         .connectTimeout(timeout, timeUnit)
                         .addNetworkInterceptor(getInterceptor())
@@ -118,7 +118,7 @@ public class RetrofitClient {
             } else {
                 okHttpClient = new OkHttpClient().newBuilder()
                         //设置Header
-                        .addInterceptor(getHeaderInterceptor())
+                        .addInterceptor(new TokenInterceptor())
                         .addInterceptor(errorCodeInterceptor())
                         .connectTimeout(timeout, timeUnit)
                         .addNetworkInterceptor(getInterceptor())

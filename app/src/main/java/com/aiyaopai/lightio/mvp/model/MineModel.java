@@ -6,6 +6,7 @@ import com.aiyaopai.lightio.bean.UserBean;
 import com.aiyaopai.lightio.mvp.contract.MineContract;
 import com.aiyaopai.lightio.net.RetrofitClient;
 import com.aiyaopai.lightio.util.Contents;
+import com.aiyaopai.lightio.util.SPUtils;
 import com.aiyaopai.lightio.util.UiUtils;
 import com.aiyaopai.lightio.view.CacheDataManager;
 
@@ -21,10 +22,8 @@ public class MineModel implements MineContract.Model {
     }
 
     @Override
-    public Observable<BaseBean> signOut() {
-        Map<String, Object> map = new HashMap<>();
-        map.put(Contents.Api, "Account.SignOut");
-        return RetrofitClient.getServer().signOutApi(map);
+    public void signOut() {
+        SPUtils.save(Contents.access_token,"");
     }
 
     @Override

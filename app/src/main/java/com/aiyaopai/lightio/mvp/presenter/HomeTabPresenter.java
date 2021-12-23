@@ -2,7 +2,7 @@ package com.aiyaopai.lightio.mvp.presenter;
 
 import com.aiyaopai.lightio.base.BasePresenter;
 import com.aiyaopai.lightio.base.CustomObserver;
-import com.aiyaopai.lightio.bean.ActivityListBean;
+import com.aiyaopai.lightio.bean.AlbumListBean;
 import com.aiyaopai.lightio.mvp.contract.HomeTabContract;
 import com.aiyaopai.lightio.mvp.model.HomeTabModel;
 import com.aiyaopai.lightio.net.RxScheduler;
@@ -24,9 +24,9 @@ public class HomeTabPresenter extends BasePresenter<HomeTabContract.View> implem
         tabModel.activitySearch(pageIndex,tagStr)
                 .compose(RxScheduler.Obs_io_main())
                 .to(getView().bindAutoDispose())//解决内存泄漏
-                .subscribe(new CustomObserver<ActivityListBean>(getView()) {
+                .subscribe(new CustomObserver<AlbumListBean>(getView()) {
                     @Override
-                    public void onNext(@NotNull ActivityListBean bean) {
+                    public void onNext(@NotNull AlbumListBean bean) {
                         getView().onSuccess(bean);
                     }
                 });

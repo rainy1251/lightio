@@ -1,11 +1,11 @@
 package com.aiyaopai.lightio.mvp.presenter;
 
+import android.text.TextUtils;
+
 import androidx.exifinterface.media.ExifInterface;
 
 import com.aiyaopai.lightio.base.BasePresenter;
 import com.aiyaopai.lightio.base.CommonObserver;
-import com.aiyaopai.lightio.base.CustomObserver;
-import com.aiyaopai.lightio.bean.BaseBean;
 import com.aiyaopai.lightio.bean.OriginalPicBean;
 import com.aiyaopai.lightio.bean.PicBean;
 import com.aiyaopai.lightio.mvp.contract.NoticeContract;
@@ -35,29 +35,13 @@ public class NoticePresenter extends BasePresenter<NoticeContract.View> implemen
 
     public NoticePresenter(NoticeContract.View view) {
         super(view);
-        model =new NoticeModel();
-    }
-
-
-
-    @Override
-    public void getUpLoadToken(String activityId) {
-
-        model.getUpLoadToken(activityId)
-                .compose(RxScheduler.Obs_io_main())
-                .to(getView().bindAutoDispose())//解决内存泄漏
-                .subscribe(new CustomObserver<BaseBean>(getView()) {
-                    @Override
-                    public void onNext(@NotNull BaseBean bean) {
-                        getView().getTokenSuccess(bean);
-                    }
-                });
+        model = new NoticeModel();
     }
 
     @Override
-    public void getOriginalPic(int pageIndex,String albumId, String photographerId) {
+    public void getOriginalPic(int pageIndex, String albumId, String photographerId) {
 
-        model.getOriginalPic(pageIndex,albumId, photographerId)
+        model.getOriginalPic(pageIndex, albumId, photographerId)
                 .compose(RxScheduler.Obs_io_main())
                 .to(getView().bindAutoDispose())//解决内存泄漏
                 .subscribe(new CommonObserver<OriginalPicBean>() {
@@ -87,19 +71,23 @@ public class NoticePresenter extends BasePresenter<NoticeContract.View> implemen
                     @Override
                     public Integer apply(@NonNull OriginalPicBean.ResultBean bean) throws Throwable {
 //TODO
-//                        if (bean.LocalKey != null) {
-//                            if (bean.LocalKey.contains(":")) {
-//                                String[] split = bean.LocalKey.split(":");
-//                                PicBean picBean;
-//                                if (split.length > 1) {
-//                                    picBean = new PicBean(split[1], bean.getSize(), bean.getUrl(), split[0], 100, 1);
-//                                } else {
-//                                    picBean = new PicBean("YAOPAI", bean.getSize(), bean.getUrl(), "", 100, 1);
-//                                }
-//                                AppDB.getInstance().picDao().insert(picBean);
-//                                syncNum++;
-//                            }
-//                        }
+                        if (!TextUtils.isEmpty(bean.getName())) {
+                            PicBean picBean;
+                            if (bean.getName().contains("_")) {
+                                String[] split = bean.getName().split("_");
+
+                                if (split.length > 1) {
+                                    picBean = new PicBean(split[0], bean.getSize(), bean.getUrl(), split[0], 100, 1);
+                                } else {
+                                    picBean = new PicBean("YAOPAI", bean.getSize(), bean.getUrl(), "", 100, 1);
+                                }
+
+                            } else {
+                                picBean = new PicBean(bean.getName(), bean.getSize(), bean.getUrl(),"133", 100, 1);
+                            }
+                            AppDB.getInstance().picDao().insert(picBean);
+                            syncNum++;
+                        }
                         return syncNum;
                     }
 
@@ -144,7 +132,7 @@ public class NoticePresenter extends BasePresenter<NoticeContract.View> implemen
             //String data = ModifyExif.getExif(file.getAbsolutePath()).getAttribute(ExifInterface.TAG_DATETIME_ORIGINAL);
             PicBean picBean = new PicBean(file.getName(), (int) file.length()
                     , file.getAbsolutePath(), id, 0, 0);
-         //  ModifyExif.setExif(file.getAbsolutePath(), id,data);
+            //  ModifyExif.setExif(file.getAbsolutePath(), id,data);
             AppDB.getInstance().picDao().insert(picBean);
 
         }

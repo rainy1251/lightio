@@ -4,6 +4,7 @@ import android.content.Context;
 
 import com.aiyaopai.lightio.adapter.PicAdapter;
 import com.aiyaopai.lightio.base.BaseView;
+import com.aiyaopai.lightio.bean.BaseBean;
 import com.aiyaopai.lightio.bean.PicBean;
 import com.aiyaopai.lightio.databinding.FragmentLiveBinding;
 import com.aiyaopai.lightio.ptp.Camera;
@@ -11,15 +12,17 @@ import com.aiyaopai.lightio.ptp.Camera;
 import java.util.List;
 import java.util.Map;
 
+import io.reactivex.rxjava3.core.Observable;
+
 
 public interface LiveContract {
     interface Model {
-
+        Observable<BaseBean> getUpLoadToken(String activityId);
         List<PicBean> getDataList(List<PicBean> dataList);
     }
 
     interface View extends BaseView {
-
+        void getTokenSuccess(BaseBean bean);
         void getRecycleViewData(List<PicBean> dataList, PicAdapter adapter);
         void getScanProgress(int progress);
         void getScanComplete();
@@ -37,7 +40,7 @@ public interface LiveContract {
     }
 
     interface Presenter {
-
+        void getUpLoadToken(String activityId);
         void initToolbar(FragmentLiveBinding binding);
         void initRecycleView(Context context, FragmentLiveBinding binding);
         void setModePx(FragmentLiveBinding binding,PicAdapter adapter);

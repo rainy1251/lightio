@@ -18,7 +18,7 @@ import org.jetbrains.annotations.NotNull;
 import java.util.ArrayList;
 import java.util.List;
 
-public class ActivityListFragment extends BaseFragment<FragmentActivityListBinding> {
+public class AlbumFragment extends BaseFragment<FragmentActivityListBinding> {
 
     private final List<Fragment> mFragments = new ArrayList<>();
 
@@ -35,7 +35,7 @@ public class ActivityListFragment extends BaseFragment<FragmentActivityListBindi
 //        for (int i = 0; i < tab_key.length; i++) {
 //            viewBinding.tabLayout.addTab(viewBinding.tabLayout.newTab().setText(tab_key[i]));
 //        }
-        mFragments.add( new ActivityTabFragment());
+        mFragments.add( new AlbumTabFragment());
 
         viewBinding.vpView.setOrientation(ViewPager2.ORIENTATION_HORIZONTAL);
         HomeTabPagerAdapter mPagerAdapter = new HomeTabPagerAdapter(this,mFragments);

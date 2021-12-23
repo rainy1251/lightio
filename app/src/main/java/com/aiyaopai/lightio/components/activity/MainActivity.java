@@ -12,7 +12,7 @@ import androidx.fragment.app.FragmentTransaction;
 
 import com.aiyaopai.lightio.R;
 import com.aiyaopai.lightio.base.BaseActivity;
-import com.aiyaopai.lightio.components.fragment.ActivityListFragment;
+import com.aiyaopai.lightio.components.fragment.AlbumFragment;
 import com.aiyaopai.lightio.components.fragment.MineFragment;
 import com.aiyaopai.lightio.databinding.ActivityMainBinding;
 import com.aiyaopai.lightio.util.MyToast;
@@ -60,7 +60,7 @@ public class MainActivity extends BaseActivity<ActivityMainBinding> implements B
     protected void initData() {
         fragments = new ArrayList<>();
        // fragments.add(new HomeFragment());
-        fragments.add(new ActivityListFragment());
+        fragments.add(new AlbumFragment());
         fragments.add(new MineFragment());
         setFragmentPosition(0);
         AppDB.getInstance().picDao().delete();

@@ -12,7 +12,7 @@ public interface MineContract {
     interface Model {
         Observable<UserBean> getInfo();
 
-        Observable<BaseBean> signOut();
+        void signOut();
 
         Observable<Boolean>  cleanCache();
     }
@@ -26,7 +26,7 @@ public interface MineContract {
     interface View extends BaseView {
         void onSuccess(UserBean bean);
 
-        void onSignOutSuccess(BaseBean bean);
+        void onSignOutSuccess();
 
         void onClean();
 

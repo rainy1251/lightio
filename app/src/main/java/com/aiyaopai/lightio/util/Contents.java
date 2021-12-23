@@ -20,6 +20,7 @@ public class Contents  {
     public static final String code = "code";
     public static final String access_token = "access_token";
     public static final String refresh_token = "refresh_token";
+    public static final String tokenBeginAt = "tokenBeginAt";
     public static final String offset = "offset";
     public static final String limit = "limit";
     public static final String roles = "roles";
@@ -38,7 +39,6 @@ public class Contents  {
     public static final String Franchisee = "Franchisee";
     public static final String Customer = "Customer";
     public static final String Role = "Role";//用户类型
-
 
 
 
@@ -104,4 +104,5 @@ public class Contents  {
     public static final String Standard= "Standard";
     public static final String Original= "Original";
     public static final String HelpUrl = "https://help.aiyaopai.com/DocManage/5c1794913eb3303d6086bcbd";
+
 }

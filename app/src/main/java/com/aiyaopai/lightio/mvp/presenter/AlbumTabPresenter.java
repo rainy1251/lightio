@@ -2,20 +2,20 @@ package com.aiyaopai.lightio.mvp.presenter;
 
 import com.aiyaopai.lightio.base.BasePresenter;
 import com.aiyaopai.lightio.base.CustomObserver;
-import com.aiyaopai.lightio.bean.ActivityListBean;
-import com.aiyaopai.lightio.mvp.contract.ActivityTabContract;
-import com.aiyaopai.lightio.mvp.model.ActivityTabModel;
+import com.aiyaopai.lightio.bean.AlbumListBean;
+import com.aiyaopai.lightio.mvp.contract.AlbumTabContract;
+import com.aiyaopai.lightio.mvp.model.AlbumTabModel;
 import com.aiyaopai.lightio.net.RxScheduler;
 
 import org.jetbrains.annotations.NotNull;
 
-public class ActivityTabPresenter extends BasePresenter<ActivityTabContract.View> implements ActivityTabContract.Presenter{
+public class AlbumTabPresenter extends BasePresenter<AlbumTabContract.View> implements AlbumTabContract.Presenter{
 
-    private final ActivityTabContract.Model model;
+    private final AlbumTabContract.Model model;
 
-    public ActivityTabPresenter(ActivityTabContract.View view) {
+    public AlbumTabPresenter(AlbumTabContract.View view) {
         super(view);
-        model = new ActivityTabModel();
+        model = new AlbumTabModel();
     }
 
     @Override
@@ -23,9 +23,9 @@ public class ActivityTabPresenter extends BasePresenter<ActivityTabContract.View
         model.getList(pageIndex)
                 .compose(RxScheduler.Obs_io_main())
                 .to(getView().bindAutoDispose())//解决内存泄漏
-                .subscribe(new CustomObserver<ActivityListBean>(getView()) {
+                .subscribe(new CustomObserver<AlbumListBean>(getView()) {
                     @Override
-                    public void onNext(@NotNull ActivityListBean bean) {
+                    public void onNext(@NotNull AlbumListBean bean) {
                         getView().onSuccess(bean);
                     }
                 });

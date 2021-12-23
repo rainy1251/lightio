@@ -3,7 +3,8 @@ package com.aiyaopai.lightio.bean;
 import java.io.Serializable;
 import java.util.List;
 
-public class ActivityListBean implements Serializable {
+public class AlbumListBean implements Serializable {
+
     private int total;
     private List<ResultBean> result;
 
@@ -24,28 +25,29 @@ public class ActivityListBean implements Serializable {
     }
 
     public static class ResultBean implements Serializable {
-        private int beginAt;
+        private long beginAt;
         private boolean deleted;
         private String description;
-        private int endAt;
+        private long endAt;
         private String id;
         private LocationBean location;
-        private String logo;
+        private String banner;
         private String name;
-        private boolean published;
         private SharerBean sharer;
+        private String activityId;
         private String teamId;
         private String templatesId;
         private Object userId;
         private int createdAt;
         private List<String> categoryTags;
+        private List<ParticipatorsBean> participators;
         private List<WorkersBean> workers;
 
-        public int getBeginAt() {
+        public long getBeginAt() {
             return beginAt;
         }
 
-        public void setBeginAt(int beginAt) {
+        public void setBeginAt(long beginAt) {
             this.beginAt = beginAt;
         }
 
@@ -65,11 +67,11 @@ public class ActivityListBean implements Serializable {
             this.description = description;
         }
 
-        public int getEndAt() {
+        public long getEndAt() {
             return endAt;
         }
 
-        public void setEndAt(int endAt) {
+        public void setEndAt(long endAt) {
             this.endAt = endAt;
         }
 
@@ -89,12 +91,12 @@ public class ActivityListBean implements Serializable {
             this.location = location;
         }
 
-        public String getLogo() {
-            return logo;
+        public String getBanner() {
+            return banner;
         }
 
-        public void setLogo(String logo) {
-            this.logo = logo;
+        public void setBanner(String banner) {
+            this.banner = banner;
         }
 
         public String getName() {
@@ -105,20 +107,20 @@ public class ActivityListBean implements Serializable {
             this.name = name;
         }
 
-        public boolean isPublished() {
-            return published;
-        }
-
-        public void setPublished(boolean published) {
-            this.published = published;
-        }
-
         public SharerBean getSharer() {
             return sharer;
         }
 
         public void setSharer(SharerBean sharer) {
             this.sharer = sharer;
+        }
+
+        public String getActivityId() {
+            return activityId;
+        }
+
+        public void setActivityId(String activityId) {
+            this.activityId = activityId;
         }
 
         public String getTeamId() {
@@ -159,6 +161,14 @@ public class ActivityListBean implements Serializable {
 
         public void setCategoryTags(List<String> categoryTags) {
             this.categoryTags = categoryTags;
+        }
+
+        public List<ParticipatorsBean> getParticipators() {
+            return participators;
+        }
+
+        public void setParticipators(List<ParticipatorsBean> participators) {
+            this.participators = participators;
         }
 
         public List<WorkersBean> getWorkers() {
@@ -256,10 +266,59 @@ public class ActivityListBean implements Serializable {
             }
         }
 
+        public static class ParticipatorsBean implements Serializable {
+            private String description;
+            private String group;
+            private String logo;
+            private String name;
+            private String qrCode;
+
+            public String getDescription() {
+                return description;
+            }
+
+            public void setDescription(String description) {
+                this.description = description;
+            }
+
+            public String getGroup() {
+                return group;
+            }
+
+            public void setGroup(String group) {
+                this.group = group;
+            }
+
+            public String getLogo() {
+                return logo;
+            }
+
+            public void setLogo(String logo) {
+                this.logo = logo;
+            }
+
+            public String getName() {
+                return name;
+            }
+
+            public void setName(String name) {
+                this.name = name;
+            }
+
+            public String getQrCode() {
+                return qrCode;
+            }
+
+            public void setQrCode(String qrCode) {
+                this.qrCode = qrCode;
+            }
+        }
+
         public static class WorkersBean implements Serializable {
             private String role;
             private String userId;
             private boolean external;
+            private boolean inherited;
 
             public String getRole() {
                 return role;
@@ -283,6 +342,14 @@ public class ActivityListBean implements Serializable {
 
             public void setExternal(boolean external) {
                 this.external = external;
+            }
+
+            public boolean isInherited() {
+                return inherited;
+            }
+
+            public void setInherited(boolean inherited) {
+                this.inherited = inherited;
             }
         }
     }

@@ -29,7 +29,7 @@ public class DateFormatUtils {
 
     public static String formatMils(Long millSec) {
         Date date = new Date(millSec);
-        SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+        SimpleDateFormat sdf = new SimpleDateFormat("MM/dd HH:mm");
         return sdf.format(date);
     }
 

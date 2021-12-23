@@ -8,11 +8,11 @@ import com.aiyaopai.lightio.R;
 import com.aiyaopai.lightio.components.activity.NoticeActivity;
 import com.aiyaopai.lightio.adapter.ActivityListAdapter;
 import com.aiyaopai.lightio.base.BaseMvpFragment;
-import com.aiyaopai.lightio.bean.ActivityListBean;
+import com.aiyaopai.lightio.bean.AlbumListBean;
 import com.aiyaopai.lightio.databinding.FragmentActivityTabBinding;
 import com.aiyaopai.lightio.event.LoginSuccessEvent;
-import com.aiyaopai.lightio.mvp.contract.ActivityTabContract;
-import com.aiyaopai.lightio.mvp.presenter.ActivityTabPresenter;
+import com.aiyaopai.lightio.mvp.contract.AlbumTabContract;
+import com.aiyaopai.lightio.mvp.presenter.AlbumTabPresenter;
 import com.aiyaopai.lightio.util.Contents;
 import com.aiyaopai.lightio.util.MyToast;
 import com.aiyaopai.lightio.view.SpaceItemDecoration;
@@ -24,21 +24,21 @@ import org.greenrobot.eventbus.ThreadMode;
 import java.util.ArrayList;
 import java.util.List;
 
-public class ActivityTabFragment extends BaseMvpFragment<ActivityTabPresenter, FragmentActivityTabBinding>
-        implements ActivityTabContract.View {
+public class AlbumTabFragment extends BaseMvpFragment<AlbumTabPresenter, FragmentActivityTabBinding>
+        implements AlbumTabContract.View {
 
-    private List<ActivityListBean.ResultBean> dataList;
+    private List<AlbumListBean.ResultBean> dataList;
     private ActivityListAdapter mAdapter;
-    private ActivityTabPresenter presenter;
-    private int pageIndex = 1;
+    private AlbumTabPresenter presenter;
+    private int pageIndex = 0;
 
-    public ActivityTabFragment() {
+    public AlbumTabFragment() {
 
     }
 
     @Override
     protected void initView() {
-        presenter = new ActivityTabPresenter(this);
+        presenter = new AlbumTabPresenter(this);
 
         initRefreshLayout(viewBinding.srlView);
         EventBus.getDefault().register(this);
@@ -77,7 +77,7 @@ public class ActivityTabFragment extends BaseMvpFragment<ActivityTabPresenter, F
     @Override
     public void refresh() {
         super.refresh();
-        pageIndex = 1;
+        pageIndex = 0;
         dataList.clear();
         presenter.getList(pageIndex);
     }
@@ -85,8 +85,9 @@ public class ActivityTabFragment extends BaseMvpFragment<ActivityTabPresenter, F
     @Subscribe(threadMode = ThreadMode.MAIN)
     public void loginEvent(LoginSuccessEvent event) {
         if (event.isLogin()) {
-            pageIndex = 1;
+            pageIndex =0;
             dataList.clear();
+            mAdapter.notifyDataSetChanged();
             presenter.getList(pageIndex);
         }
     }
@@ -97,9 +98,9 @@ public class ActivityTabFragment extends BaseMvpFragment<ActivityTabPresenter, F
     }
 
     @Override
-    public void onSuccess(ActivityListBean bean) {
-        List<ActivityListBean.ResultBean> result = bean.getResult();
-        if (pageIndex > 1 && result.size() == 0) {
+    public void onSuccess(AlbumListBean bean) {
+        List<AlbumListBean.ResultBean> result = bean.getResult();
+        if (pageIndex > 0 && result.size() == 0) {
             MyToast.show("没有更多了");
         }
         dataList.addAll(result);

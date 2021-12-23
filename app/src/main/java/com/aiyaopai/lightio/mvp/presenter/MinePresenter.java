@@ -8,6 +8,8 @@ import com.aiyaopai.lightio.bean.UserBean;
 import com.aiyaopai.lightio.mvp.contract.MineContract;
 import com.aiyaopai.lightio.mvp.model.MineModel;
 import com.aiyaopai.lightio.net.RxScheduler;
+import com.aiyaopai.lightio.util.Contents;
+import com.aiyaopai.lightio.util.SPUtils;
 
 import org.jetbrains.annotations.NotNull;
 
@@ -37,16 +39,8 @@ public class MinePresenter extends BasePresenter<MineContract.View> implements M
 
     @Override
     public void signOut() {
-   
-        model.signOut()
-                .compose(RxScheduler.Obs_io_main())
-                .to(getView().bindAutoDispose())//解决内存泄漏
-                .subscribe(new CustomObserver<BaseBean>(getView()) {
-                    @Override
-                    public void onNext(@NotNull BaseBean bean) {
-                        getView().onSignOutSuccess(bean);
-                    }
-                });
+        model.signOut();
+        getView().onSignOutSuccess();
     }
 
     @Override

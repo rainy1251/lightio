@@ -9,7 +9,7 @@ import com.aiyaopai.lightio.R;
 import com.aiyaopai.lightio.components.activity.WebActivity;
 import com.aiyaopai.lightio.adapter.HomeTabAdapter;
 import com.aiyaopai.lightio.base.BaseMvpFragment;
-import com.aiyaopai.lightio.bean.ActivityListBean;
+import com.aiyaopai.lightio.bean.AlbumListBean;
 import com.aiyaopai.lightio.databinding.FragmentHomeTabBinding;
 import com.aiyaopai.lightio.mvp.contract.HomeTabContract;
 import com.aiyaopai.lightio.mvp.presenter.HomeTabPresenter;
@@ -24,7 +24,7 @@ public class HomeTabFragment extends BaseMvpFragment<HomeTabPresenter, FragmentH
 
     private HomeTabPresenter homeTabPresenter;
     private int pageIndex = 1;
-    private List<ActivityListBean.ResultBean> dataList;
+    private List<AlbumListBean.ResultBean> dataList;
     private HomeTabAdapter mAdapter;
     private String tagName;
 
@@ -55,7 +55,7 @@ public class HomeTabFragment extends BaseMvpFragment<HomeTabPresenter, FragmentH
         viewBinding.rvView.addItemDecoration(new SpaceItemDecoration(10, 20));
         mAdapter.setEmptyView(R.layout.empty_layout);
         mAdapter.setOnItemClickListener((adapter, view, position) -> {
-            List<ActivityListBean.ResultBean> data = (List<ActivityListBean.ResultBean>)adapter.getData();
+            List<AlbumListBean.ResultBean> data = (List<AlbumListBean.ResultBean>)adapter.getData();
             String url =Contents.ACTIVITY_URL+data.get(position).getId();
             WebActivity.start(getActivity(),url,data.get(position).getName());
 
@@ -83,7 +83,7 @@ public class HomeTabFragment extends BaseMvpFragment<HomeTabPresenter, FragmentH
     }
 
     @Override
-    public void onSuccess(ActivityListBean activityListBean) {
+    public void onSuccess(AlbumListBean albumListBean) {
         //ArrayList<ActivityListBean.ResultBean> result = activityListBean.getResult();
 //        dataList.addAll(result);
 //        mAdapter.setDiffNewData(result);

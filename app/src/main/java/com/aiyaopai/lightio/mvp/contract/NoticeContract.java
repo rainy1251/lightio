@@ -1,8 +1,6 @@
 package com.aiyaopai.lightio.mvp.contract;
 
 import com.aiyaopai.lightio.base.BaseView;
-import com.aiyaopai.lightio.bean.ActivityListBean;
-import com.aiyaopai.lightio.bean.BaseBean;
 import com.aiyaopai.lightio.bean.OriginalPicBean;
 
 import java.util.ArrayList;
@@ -12,7 +10,6 @@ import io.reactivex.rxjava3.core.Observable;
 public interface NoticeContract {
     interface Model {
         Observable<OriginalPicBean> getOriginalPic(int pageIndex, String albumId, String photographerId);
-        Observable<BaseBean> getUpLoadToken(String activityId);
     }
 
     interface View extends BaseView {
@@ -21,7 +18,6 @@ public interface NoticeContract {
         void syncComplete();
         void syncSDComplete();
         void syncNum(int syncNum);
-        void getTokenSuccess(BaseBean bean);
         void getError();
     }
 
@@ -31,6 +27,5 @@ public interface NoticeContract {
         void syncData(ArrayList<OriginalPicBean.ResultBean> result);
 
         void syncSD(String activityId);
-        void getUpLoadToken(String activityId);
     }
 }

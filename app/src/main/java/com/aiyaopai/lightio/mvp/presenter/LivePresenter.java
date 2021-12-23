@@ -9,11 +9,17 @@ import com.aiyaopai.lightio.R;
 import com.aiyaopai.lightio.adapter.PicAdapter;
 import com.aiyaopai.lightio.base.BasePresenter;
 import com.aiyaopai.lightio.base.CommonObserver;
+import com.aiyaopai.lightio.base.CustomObserver;
+import com.aiyaopai.lightio.bean.BaseBean;
 import com.aiyaopai.lightio.bean.PicBean;
 import com.aiyaopai.lightio.databinding.FragmentLiveBinding;
 import com.aiyaopai.lightio.mvp.contract.LiveContract;
+import com.aiyaopai.lightio.mvp.model.LiveModel;
+import com.aiyaopai.lightio.mvp.model.NoticeModel;
+import com.aiyaopai.lightio.net.RetrofitClient;
 import com.aiyaopai.lightio.net.RxScheduler;
 import com.aiyaopai.lightio.net.qiniu.QiNiuImageSubscribe;
+import com.aiyaopai.lightio.net.qiniu.UpLoadImageSubscribe;
 import com.aiyaopai.lightio.ptp.Camera;
 import com.aiyaopai.lightio.util.Contents;
 import com.aiyaopai.lightio.util.FilesUtil;
@@ -21,10 +27,14 @@ import com.aiyaopai.lightio.util.SPUtils;
 import com.aiyaopai.lightio.view.AppDB;
 import com.aiyaopai.lightio.view.SpaceItemDecoration;
 
+import org.jetbrains.annotations.NotNull;
+
+import java.io.File;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.TimeZone;
 
 import io.reactivex.rxjava3.android.schedulers.AndroidSchedulers;
 import io.reactivex.rxjava3.annotations.NonNull;
@@ -43,11 +53,13 @@ import io.reactivex.rxjava3.schedulers.Schedulers;
 
 public class LivePresenter extends BasePresenter<LiveContract.View> implements LiveContract.Presenter {
 
+    private final LiveModel model;
     private int progress = 0;
     private List<Integer> picIds;
 
     public LivePresenter(LiveContract.View view) {
         super(view);
+        model = new LiveModel();
     }
 
     @Override
@@ -202,30 +214,66 @@ public class LivePresenter extends BasePresenter<LiveContract.View> implements L
                 });
     }
 
+    @Override
+    public void getUpLoadToken(String activityId) {
+
+        model.getUpLoadToken(activityId)
+                .compose(RxScheduler.Obs_io_main())
+                .to(getView().bindAutoDispose())//解决内存泄漏
+                .subscribe(new CustomObserver<BaseBean>(getView()) {
+                    @Override
+                    public void onNext(@NotNull BaseBean bean) {
+                        getView().getTokenSuccess(bean);
+                    }
+                });
+    }
+
     /**
      * 批量上传
      */
+
+    PicBean mPicBean ;
     @Override
-    public void upLoadPic(List<PicBean> pathList, String token) {
+    public void upLoadPic(List<PicBean> pathList, String albumId) {
+
         String mode = SPUtils.getModeString(Contents.UPLOAD_MODE);
         if (mode.equals(Contents.HAND_UPLOAD)) {
             return;
         }
         Observable.fromIterable(pathList)
-                .concatMap(new Function<PicBean, ObservableSource<PicBean>>() {
+                .concatMap(new Function<PicBean, ObservableSource<BaseBean>>() {
                     @Override
-                    public ObservableSource<PicBean> apply(PicBean picBean) throws Throwable {
-                        return Observable.create(new QiNiuImageSubscribe(picBean, token));
+                    public ObservableSource<BaseBean> apply(PicBean picBean) throws Throwable {
+                        mPicBean = picBean;
+                        TimeZone tz = TimeZone.getDefault();
+                        int timezoneOffset = (tz.getRawOffset()) / (3600 * 1000);
+                        Map<String, Object> map = new HashMap<>();
+                        map.put("albumId", albumId);
+                        map.put("timezoneOffset", timezoneOffset);
+                        return RetrofitClient.getServer().getQiNiuToken(map);
+                    }
+                })
+                .flatMap(new Function<BaseBean, ObservableSource<BaseBean>>() {
+                    @Override
+                    public ObservableSource<BaseBean> apply(BaseBean baseBean) throws Throwable {
+                        File file = new File(mPicBean.getPicPath());
+                        Map<String, Object> map = new HashMap<>();
+                        map.put("token", baseBean.getToken());
+                        map.put("file", file);
+
+                        return RetrofitClient.getServer().getUpLoad(map);
                     }
                 })
                 .compose(RxScheduler.Obs_io_main())
                 .to(getView().bindAutoDispose())
-                .subscribe(new CommonObserver<PicBean>() {
+                .subscribe(new CommonObserver<BaseBean>() {
                     @Override
-                    public void onNext(@NonNull PicBean picBean) {
-                        getView().getUploadNext(picBean);
+                    public void onNext(@NonNull BaseBean picBean) {
+                      //  getView().getUploadNext(picBean);
                     }
                 });
+
+
     }
 
     /**
@@ -269,7 +317,7 @@ public class LivePresenter extends BasePresenter<LiveContract.View> implements L
      * 手动上传时，动态获取照片
      */
     @Override
-    public void addHandBean(int picId, Camera camera, String activityId, String qiNiuToken,String mode) {
+    public void addHandBean(int picId, Camera camera, String activityId, String qiNiuToken, String mode) {
         String photoPx = SPUtils.getPxString(Contents.PHOTO_PX);
         Observable.create(new ObservableOnSubscribe<PicBean>() {
             @Override

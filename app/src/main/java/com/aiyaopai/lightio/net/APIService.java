@@ -1,7 +1,7 @@
 package com.aiyaopai.lightio.net;
 
 
-import com.aiyaopai.lightio.bean.ActivityListBean;
+import com.aiyaopai.lightio.bean.AlbumListBean;
 import com.aiyaopai.lightio.bean.BannerBean;
 import com.aiyaopai.lightio.bean.BaseBean;
 import com.aiyaopai.lightio.bean.OriginalPicBean;
@@ -12,9 +12,13 @@ import java.util.List;
 import java.util.Map;
 
 import io.reactivex.rxjava3.core.Observable;
+import okhttp3.ResponseBody;
+import retrofit2.Call;
+import retrofit2.http.Field;
 import retrofit2.http.FieldMap;
 import retrofit2.http.FormUrlEncoded;
 import retrofit2.http.GET;
+import retrofit2.http.Headers;
 import retrofit2.http.POST;
 import retrofit2.http.Query;
 
@@ -32,7 +36,7 @@ public interface APIService {
      */
     @FormUrlEncoded
     @POST(".")
-    Observable<ActivityListBean> activitySearch(@FieldMap Map<String, Object> map);
+    Observable<AlbumListBean> activitySearch(@FieldMap Map<String, Object> map);
 
     /**
      * 获取用户信息
@@ -55,6 +59,14 @@ public interface APIService {
     Observable<SignInBean> loginCode(@FieldMap Map<String, Object> map);
 
     /**
+     * 刷新令牌
+     */
+    @FormUrlEncoded
+    @POST("/oauth/connect/token")
+    @Headers("Content-Type:application/x-www-form-urlencoded")
+    Call<SignInBean> refreshToken(@Field("client_id") String client_id
+            , @Field("grant_type") String grant_type, @Field("refresh_token") String refresh_token);
+    /**
      * 退出登录
      */
     @FormUrlEncoded
@@ -76,10 +88,10 @@ public interface APIService {
     Observable<BaseBean> sendCode(@FieldMap Map<String, Object> map);
 
     /**
-     * 获取活动列表
+     * 获取相册列表
      */
-    @GET("/activity/list")
-    Observable<ActivityListBean> getActivityList(@Query("offset") int offset
+    @GET("/livealbum/list")
+    Observable<AlbumListBean> getAlbumList(@Query("offset") int offset
             , @Query("limit") int limit, @Query("roles") String roles);
 
     /**
@@ -88,6 +100,13 @@ public interface APIService {
     @FormUrlEncoded
     @POST("originalpicture/uploadToken")
     Observable<BaseBean> getQiNiuToken(@FieldMap Map<String, Object> map);
+
+    /**
+     * 上传对象(文件)
+     */
+    @FormUrlEncoded
+    @POST("/upload")
+    Observable<BaseBean> getUpLoad(@FieldMap Map<String, Object> map);
 
     /**
      * 查找原始照片列表
