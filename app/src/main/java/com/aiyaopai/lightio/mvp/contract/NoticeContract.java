@@ -26,6 +26,6 @@ public interface NoticeContract {
 
         void syncData(ArrayList<OriginalPicBean.ResultBean> result);
 
-        void syncSD(String activityId);
+        void syncSD(String albumId);
     }
 }

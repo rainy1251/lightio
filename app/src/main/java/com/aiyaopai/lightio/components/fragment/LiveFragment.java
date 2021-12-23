@@ -15,6 +15,7 @@ import android.widget.TextView;
 
 import com.aiyaopai.lightio.R;
 import com.aiyaopai.lightio.bean.BaseBean;
+import com.aiyaopai.lightio.bean.UploadTokenBean;
 import com.aiyaopai.lightio.components.activity.SettingActivity;
 import com.aiyaopai.lightio.adapter.PicAdapter;
 import com.aiyaopai.lightio.base.BaseMvpFragment;
@@ -59,7 +60,7 @@ public class LiveFragment extends BaseMvpFragment<LivePresenter, FragmentLiveBin
     private ScanningDialog dialog;
     private String qiNiuToken;
     private int total;
-    private String activityId;
+    private String albumId;
     private int localNum;
     private boolean autoScan;
     private TrafficInfo speed;
@@ -80,12 +81,12 @@ public class LiveFragment extends BaseMvpFragment<LivePresenter, FragmentLiveBin
         Intent intent = (Objects.requireNonNull(getActivity())).getIntent();
 
         String title = intent.getStringExtra(Contents.Title);
-        activityId = intent.getStringExtra(Contents.ActivityId);
+        albumId = intent.getStringExtra(Contents.AlbumId);
         qiNiuToken = intent.getStringExtra(Contents.QiNiuToken);
         total = intent.getIntExtra(Contents.Total, 0);
 
         viewBinding.includeLive.tvToolbarTitle.setText(title);
-        viewBinding.tvId.setText("相册码：" + activityId);
+        viewBinding.tvId.setText("相册码：" + albumId);
         viewBinding.tvSuccess.setText(String.valueOf(total));
         testNetSpeed();
 
@@ -287,9 +288,9 @@ public class LiveFragment extends BaseMvpFragment<LivePresenter, FragmentLiveBin
         localNum++;
         String uploadMode = SPUtils.getModeString(Contents.UPLOAD_MODE);
         if (uploadMode.equals(Contents.HAND_UPLOAD)) {
-            presenter.addHandBean(handle, camera(), activityId, qiNiuToken, uploadMode);
+            presenter.addHandBean(handle, camera(), albumId, qiNiuToken, uploadMode);
         } else {
-            presenter.upLoadSingle(handle, camera(), activityId, qiNiuToken);
+            presenter.upLoadSingle(handle, camera(), albumId, qiNiuToken);
         }
     }
 
@@ -303,7 +304,7 @@ public class LiveFragment extends BaseMvpFragment<LivePresenter, FragmentLiveBin
 
         if (byId == null) {
 
-            presenter.upLoadSingle(handle, camera(), activityId, qiNiuToken);
+            presenter.upLoadSingle(handle, camera(), albumId, qiNiuToken);
         }
     }
 
@@ -322,13 +323,13 @@ public class LiveFragment extends BaseMvpFragment<LivePresenter, FragmentLiveBin
 
                 break;
             case R.id.tv_right_right:
-                createQrCode(activityId);
+                createQrCode(albumId);
                 break;
         }
     }
 
     @Override
-    public void getTokenSuccess(BaseBean bean) {
+    public void getTokenSuccess(UploadTokenBean bean) {
 
     }
 
@@ -346,7 +347,7 @@ public class LiveFragment extends BaseMvpFragment<LivePresenter, FragmentLiveBin
         tvProgress = dialog.findViewById(R.id.tv_progress);
         pbBar.setMax(picIds.size());
         dialog.show();
-        presenter.scanningPic(picIds, camera(), activityId);
+        presenter.scanningPic(picIds, camera(), albumId);
     }
 
     @SuppressLint("SetTextI18n")
@@ -419,7 +420,7 @@ public class LiveFragment extends BaseMvpFragment<LivePresenter, FragmentLiveBin
             if (pics2 != null && pics2.size() > 0) {
                 dataList.addAll(0, pics2);
                 mAdapter.notifyDataSetChanged();
-                presenter.upLoadPic(pics2, activityId);//上传全部未上传的照片
+                presenter.upLoadPic(pics2, albumId);//上传全部未上传的照片
             }
         }
 

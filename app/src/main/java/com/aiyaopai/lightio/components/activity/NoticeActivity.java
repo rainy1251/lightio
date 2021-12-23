@@ -24,7 +24,7 @@ public class NoticeActivity extends BaseMvpActivity<NoticePresenter, ActivityNot
 
     private NoticePresenter presenter;
     private String photographerId;
-    private String activityId;
+    private String albumId;
     private int pageIndex = 0;
     private String title;
     private int total;
@@ -48,11 +48,11 @@ public class NoticeActivity extends BaseMvpActivity<NoticePresenter, ActivityNot
 
     @Override
     protected void initData() {
-        activityId = getIntent().getStringExtra(Contents.ActivityId);
+        albumId = getIntent().getStringExtra(Contents.AlbumId);
         title = getIntent().getStringExtra(Contents.Title);
         photographerId = SPUtils.getString(Contents.Id);
 
-        presenter.getOriginalPic(pageIndex,activityId, photographerId);
+        presenter.getOriginalPic(pageIndex,albumId, photographerId);
 
         viewBinding.tvEnter.setOnClickListener(this);
         viewBinding.includeNotice.ivBack.setOnClickListener(this);
@@ -75,7 +75,7 @@ public class NoticeActivity extends BaseMvpActivity<NoticePresenter, ActivityNot
             presenter.syncData(result);
         } else {
             //同步SDCard
-            presenter.syncSD(activityId);
+            presenter.syncSD(albumId);
         }
 
     }
@@ -86,7 +86,7 @@ public class NoticeActivity extends BaseMvpActivity<NoticePresenter, ActivityNot
         if (pageIndex == 100) {
             return;
         }
-        presenter.getOriginalPic(pageIndex,activityId, photographerId);
+        presenter.getOriginalPic(pageIndex,albumId, photographerId);
     }
 
     @Override
@@ -116,7 +116,7 @@ public class NoticeActivity extends BaseMvpActivity<NoticePresenter, ActivityNot
                     case 1:
                         Intent intent = new Intent(this, LiveActivity.class);
                         intent.putExtra(Contents.Title, title);
-                        intent.putExtra(Contents.ActivityId, activityId);
+                        intent.putExtra(Contents.AlbumId, albumId);
                         intent.putExtra(Contents.Total, total);
                         intent.putExtra(Contents.QiNiuToken, token);
                         startActivity(intent);
@@ -125,7 +125,7 @@ public class NoticeActivity extends BaseMvpActivity<NoticePresenter, ActivityNot
                     case 2:
                         pageIndex = 0;
                         AppDB.getInstance().picDao().delete();
-                        presenter.getOriginalPic(pageIndex,activityId, photographerId);
+                        presenter.getOriginalPic(pageIndex,albumId, photographerId);
                         break;
                     default:
                         MyToast.show("正在同步，请稍后");

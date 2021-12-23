@@ -26,7 +26,7 @@ import java.util.Locale;
 
 public class FilesUtil {
 
-    public static String getFileFromBytes(String activityId, String uploadType, byte[] b, int length
+    public static String getFileFromBytes(String albumId, String uploadType, byte[] b, int length
             , String fileName, int handle, String date, String px) {
 
         if (uploadType.equals(Contents.RATING_UPLOAD)) {
@@ -41,10 +41,10 @@ public class FilesUtil {
         }
 
         if (px.equals(Contents.Standard)) {
-            return saveImageForBmp(activityId, b, length, fileName, handle, date);
+            return saveImageForBmp(albumId, b, length, fileName, handle, date);
         } else if (px.equals(Contents.Original)) {
             try {
-                File file = new File(getPicPath(activityId, fileName));
+                File file = new File(getPicPath(albumId, fileName));
                 FileOutputStream fos = new FileOutputStream(file);
                 fos.write(b, 12, length - 12);
                 fos.flush();
@@ -98,13 +98,12 @@ public class FilesUtil {
     }
 
 
-    public static String getDirPath(String activityId) {
-        // String activityId = SPUtils.getString( Contents.ActivityId);
-        return AppConfig.BASE_PATH + File.separator + activityId;
+    public static String getDirPath(String albumId) {
+        return AppConfig.BASE_PATH + File.separator + albumId;
     }
 
-    public static String getPicPath(String activityId, String fileName) {
-        return getDirPath(activityId) + File.separator + fileName;
+    public static String getPicPath(String albumId, String fileName) {
+        return getDirPath(albumId) + File.separator + fileName;
     }
 
     /**
@@ -121,9 +120,9 @@ public class FilesUtil {
     /**
      * 从sd卡获取图片ID
      */
-    public static void getImageFromSD(String activityId) {
+    public static void getImageFromSD(String albumId) {
 
-        File fileAll = new File(AppConfig.BASE_PATH, activityId);
+        File fileAll = new File(AppConfig.BASE_PATH, albumId);
         if (!fileAll.exists()) {
             return;
         }
@@ -165,8 +164,8 @@ public class FilesUtil {
     /**
      * 获取SD卡的照片数量
      */
-    public static int getImageIdFromSD(String activityId) {
-        File fileAll = new File(AppConfig.BASE_PATH, activityId);
+    public static int getImageIdFromSD(String albumId) {
+        File fileAll = new File(AppConfig.BASE_PATH, albumId);
         if (fileAll.exists()) {
             File[] files = fileAll.listFiles();
             if (files != null) {
@@ -242,12 +241,12 @@ public class FilesUtil {
     /**
      * 保存图片
      */
-    public static String saveImageForBmp(String activityId, byte[] b, int length, String fileName
+    public static String saveImageForBmp(String albumId, byte[] b, int length, String fileName
             , int handle, String date) {
         BitmapFactory.Options options = new BitmapFactory.Options();
         options.inSampleSize = 2;
         Bitmap bmp = BitmapFactory.decodeByteArray(b, 12, length - 12, options);
-        File file = new File(getPicPath(activityId, fileName));
+        File file = new File(getPicPath(albumId, fileName));
         try {
             FileOutputStream fos = new FileOutputStream(file);
             bmp.compress(Bitmap.CompressFormat.JPEG, 100, fos);

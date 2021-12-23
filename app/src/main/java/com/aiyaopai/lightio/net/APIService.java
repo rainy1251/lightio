@@ -6,20 +6,28 @@ import com.aiyaopai.lightio.bean.BannerBean;
 import com.aiyaopai.lightio.bean.BaseBean;
 import com.aiyaopai.lightio.bean.OriginalPicBean;
 import com.aiyaopai.lightio.bean.SignInBean;
+import com.aiyaopai.lightio.bean.UploadFileBean;
+import com.aiyaopai.lightio.bean.UploadTokenBean;
 import com.aiyaopai.lightio.bean.UserBean;
 
 import java.util.List;
 import java.util.Map;
 
 import io.reactivex.rxjava3.core.Observable;
+import okhttp3.MultipartBody;
+import okhttp3.RequestBody;
 import okhttp3.ResponseBody;
 import retrofit2.Call;
+import retrofit2.Response;
+import retrofit2.http.Body;
 import retrofit2.http.Field;
 import retrofit2.http.FieldMap;
 import retrofit2.http.FormUrlEncoded;
 import retrofit2.http.GET;
 import retrofit2.http.Headers;
+import retrofit2.http.Multipart;
 import retrofit2.http.POST;
+import retrofit2.http.Part;
 import retrofit2.http.Query;
 
 public interface APIService {
@@ -97,16 +105,16 @@ public interface APIService {
     /**
      * 获取图片上传令牌
      */
-    @FormUrlEncoded
     @POST("originalpicture/uploadToken")
-    Observable<BaseBean> getQiNiuToken(@FieldMap Map<String, Object> map);
+    Observable<UploadTokenBean> getQiNiuToken(@Body RequestBody requestBody);
 
     /**
      * 上传对象(文件)
      */
-    @FormUrlEncoded
+    @Multipart
     @POST("/upload")
-    Observable<BaseBean> getUpLoad(@FieldMap Map<String, Object> map);
+  //  @Headers("Content-Type:multipart/form-data")
+    Observable<Response<UploadFileBean>> getUpLoad( @Part("token") String  token, @Part("file") MultipartBody.Part file);
 
     /**
      * 查找原始照片列表

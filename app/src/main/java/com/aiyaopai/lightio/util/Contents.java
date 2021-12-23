@@ -29,7 +29,7 @@ public class Contents  {
 
 
     public static final String TagNames = "TagNames";
-    public static final String ActivityId = "activityId";
+    public static final String AlbumId = "AlbumId";
     public static final String Total = "total";
     public static final String APP_ID = "wxd3b76a4070d1e98d";  //release
     //    public static final String APP_ID = "wxa453d50368c692ef"; //Debug

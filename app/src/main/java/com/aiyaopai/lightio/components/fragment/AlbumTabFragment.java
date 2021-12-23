@@ -59,7 +59,7 @@ public class AlbumTabFragment extends BaseMvpFragment<AlbumTabPresenter, Fragmen
         mAdapter.setOnItemClickListener((adapter, view, position) -> {
             Intent intent = new Intent(getActivity(), NoticeActivity.class);
             intent.putExtra(Contents.Title, dataList.get(position).getName());
-            intent.putExtra(Contents.ActivityId, dataList.get(position).getId());
+            intent.putExtra(Contents.AlbumId, dataList.get(position).getId());
             startActivity(intent);
 
         });

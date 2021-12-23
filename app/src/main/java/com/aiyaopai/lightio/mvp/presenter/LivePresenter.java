@@ -10,22 +10,23 @@ import com.aiyaopai.lightio.adapter.PicAdapter;
 import com.aiyaopai.lightio.base.BasePresenter;
 import com.aiyaopai.lightio.base.CommonObserver;
 import com.aiyaopai.lightio.base.CustomObserver;
-import com.aiyaopai.lightio.bean.BaseBean;
 import com.aiyaopai.lightio.bean.PicBean;
+import com.aiyaopai.lightio.bean.UploadFileBean;
+import com.aiyaopai.lightio.bean.UploadTokenBean;
 import com.aiyaopai.lightio.databinding.FragmentLiveBinding;
 import com.aiyaopai.lightio.mvp.contract.LiveContract;
 import com.aiyaopai.lightio.mvp.model.LiveModel;
-import com.aiyaopai.lightio.mvp.model.NoticeModel;
 import com.aiyaopai.lightio.net.RetrofitClient;
 import com.aiyaopai.lightio.net.RxScheduler;
 import com.aiyaopai.lightio.net.qiniu.QiNiuImageSubscribe;
-import com.aiyaopai.lightio.net.qiniu.UpLoadImageSubscribe;
 import com.aiyaopai.lightio.ptp.Camera;
 import com.aiyaopai.lightio.util.Contents;
 import com.aiyaopai.lightio.util.FilesUtil;
+import com.aiyaopai.lightio.util.MyLog;
 import com.aiyaopai.lightio.util.SPUtils;
 import com.aiyaopai.lightio.view.AppDB;
 import com.aiyaopai.lightio.view.SpaceItemDecoration;
+import com.google.gson.Gson;
 
 import org.jetbrains.annotations.NotNull;
 
@@ -50,6 +51,10 @@ import io.reactivex.rxjava3.functions.Action;
 import io.reactivex.rxjava3.functions.Consumer;
 import io.reactivex.rxjava3.functions.Function;
 import io.reactivex.rxjava3.schedulers.Schedulers;
+import okhttp3.MediaType;
+import okhttp3.MultipartBody;
+import okhttp3.RequestBody;
+import retrofit2.Response;
 
 public class LivePresenter extends BasePresenter<LiveContract.View> implements LiveContract.Presenter {
 
@@ -155,43 +160,18 @@ public class LivePresenter extends BasePresenter<LiveContract.View> implements L
 
     }
 
-//    @Override
-//    public void getSdPicNum(String activityId) {
-//        Observable.create(new ObservableOnSubscribe<Integer>() {
-//            @Override
-//            public void subscribe(@NonNull ObservableEmitter<Integer> emitter) throws Throwable {
-//                int sdNum= FilesUtil.getImageIdFromSD(activityId);
-//                emitter.onNext(sdNum);
-//                emitter.onComplete();
-//            }
-//        }).subscribeOn(Schedulers.io())
-//                .observeOn(AndroidSchedulers.mainThread())
-//                .subscribe(new CommonObserver<Integer>() {
-//                    @Override
-//                    public void onNext(Integer integer) {
-//                        MyLog.show(integer+" ===integer");
-//                        getView().setLocalNum(integer);
-//                    }
-//
-//                    @Override
-//                    public void onComplete() {
-//                        super.onComplete();
-//                    }
-//                });
-//    }
-
     /**
      * 扫描照片
      */
     @Override
-    public void scanningPic(List<Integer> picIds, Camera camera, String activityId) {
+    public void scanningPic(List<Integer> picIds, Camera camera, String albumId) {
 
         String uploadMode = SPUtils.getModeString(Contents.UPLOAD_MODE);
         String photoPx = SPUtils.getPxString(Contents.PHOTO_PX);
         Observable.fromIterable(picIds)
                 .concatMap((Function<Integer, ObservableSource<String>>) id -> Observable.create((ObservableOnSubscribe<String>) emitter ->
                         camera.retrieveImage((objectHandle, byteBuffer, length, info) -> {
-                            String filePath = FilesUtil.getFileFromBytes(activityId, uploadMode,
+                            String filePath = FilesUtil.getFileFromBytes(albumId, uploadMode,
                                     byteBuffer.array(), length, info.filename, objectHandle, info.captureDate, photoPx);
                             emitter.onNext(filePath);
                             emitter.onComplete();
@@ -215,14 +195,14 @@ public class LivePresenter extends BasePresenter<LiveContract.View> implements L
     }
 
     @Override
-    public void getUpLoadToken(String activityId) {
+    public void getUpLoadToken(String albumId) {
 
-        model.getUpLoadToken(activityId)
+        model.getUpLoadToken(albumId)
                 .compose(RxScheduler.Obs_io_main())
                 .to(getView().bindAutoDispose())//解决内存泄漏
-                .subscribe(new CustomObserver<BaseBean>(getView()) {
+                .subscribe(new CustomObserver<UploadTokenBean>(getView()) {
                     @Override
-                    public void onNext(@NotNull BaseBean bean) {
+                    public void onNext(@NotNull UploadTokenBean bean) {
                         getView().getTokenSuccess(bean);
                     }
                 });
@@ -240,36 +220,45 @@ public class LivePresenter extends BasePresenter<LiveContract.View> implements L
         if (mode.equals(Contents.HAND_UPLOAD)) {
             return;
         }
+        MyLog.show("hhaaa");
         Observable.fromIterable(pathList)
-                .concatMap(new Function<PicBean, ObservableSource<BaseBean>>() {
+                .concatMap(new Function<PicBean, ObservableSource<UploadTokenBean>>() {
                     @Override
-                    public ObservableSource<BaseBean> apply(PicBean picBean) throws Throwable {
+                    public ObservableSource<UploadTokenBean> apply(PicBean picBean) throws Throwable {
                         mPicBean = picBean;
                         TimeZone tz = TimeZone.getDefault();
                         int timezoneOffset = (tz.getRawOffset()) / (3600 * 1000);
                         Map<String, Object> map = new HashMap<>();
                         map.put("albumId", albumId);
                         map.put("timezoneOffset", timezoneOffset);
-                        return RetrofitClient.getServer().getQiNiuToken(map);
+                        Gson gson = new Gson();
+                        String strEntity = gson.toJson(map);
+                        RequestBody body = RequestBody.create(MediaType.parse("application/json"), strEntity);
+                        return RetrofitClient.getServer().getQiNiuToken(body);
                     }
                 })
-                .flatMap(new Function<BaseBean, ObservableSource<BaseBean>>() {
+                .flatMap(new Function<UploadTokenBean, ObservableSource<Response<UploadFileBean>>>() {
                     @Override
-                    public ObservableSource<BaseBean> apply(BaseBean baseBean) throws Throwable {
-                        File file = new File(mPicBean.getPicPath());
-                        Map<String, Object> map = new HashMap<>();
-                        map.put("token", baseBean.getToken());
-                        map.put("file", file);
+                    public ObservableSource<Response<UploadFileBean>> apply(UploadTokenBean uploadTokenBean) throws Throwable {
+                        MyLog.show(uploadTokenBean.getResult().getToken());
+                        MyLog.show(mPicBean.getPicPath());
 
-                        return RetrofitClient.getServer().getUpLoad(map);
+                        File file = new File(mPicBean.getPicPath());
+
+                        RequestBody requestFile = RequestBody.create(MediaType.parse("multipart/form-data"), file);
+                        MultipartBody.Part body = MultipartBody.Part.createFormData("attach_file",
+                                file.getName(), requestFile);
+
+                        return RetrofitClient.getServer().getUpLoad(uploadTokenBean.getResult().getToken(),body);
                     }
                 })
                 .compose(RxScheduler.Obs_io_main())
                 .to(getView().bindAutoDispose())
-                .subscribe(new CommonObserver<BaseBean>() {
+                .subscribe(new CommonObserver<Response<UploadFileBean>>() {
                     @Override
-                    public void onNext(@NonNull BaseBean picBean) {
+                    public void onNext(@NonNull Response<UploadFileBean> picBean) {
                       //  getView().getUploadNext(picBean);
+                        MyLog.show(picBean.body().getResult().getSize());
                     }
                 });
 
@@ -280,14 +269,14 @@ public class LivePresenter extends BasePresenter<LiveContract.View> implements L
      * 边拍边传
      */
     @Override
-    public void upLoadSingle(int picId, Camera camera, String activityId, String qiNiuToken) {
+    public void upLoadSingle(int picId, Camera camera, String albumId, String qiNiuToken) {
         String uploadMode = SPUtils.getModeString(Contents.UPLOAD_MODE);
         String photoPx = SPUtils.getPxString(Contents.PHOTO_PX);
         Observable.create(new ObservableOnSubscribe<PicBean>() {
             @Override
             public void subscribe(@NonNull ObservableEmitter<PicBean> emitter) throws Throwable {
                 camera.retrieveImage((objectHandle, byteBuffer, length, info) -> {
-                    FilesUtil.getFileFromBytes(activityId, uploadMode,
+                    FilesUtil.getFileFromBytes(albumId, uploadMode,
                             byteBuffer.array(), length, info.filename, objectHandle, info.captureDate, photoPx);
                     PicBean byId = AppDB.getInstance().picDao().findById(String.valueOf(picId));
                     getView().getUploadSingleAdd(byId);
@@ -317,13 +306,13 @@ public class LivePresenter extends BasePresenter<LiveContract.View> implements L
      * 手动上传时，动态获取照片
      */
     @Override
-    public void addHandBean(int picId, Camera camera, String activityId, String qiNiuToken, String mode) {
+    public void addHandBean(int picId, Camera camera, String albumId, String qiNiuToken, String mode) {
         String photoPx = SPUtils.getPxString(Contents.PHOTO_PX);
         Observable.create(new ObservableOnSubscribe<PicBean>() {
             @Override
             public void subscribe(@NonNull ObservableEmitter<PicBean> emitter) throws Throwable {
                 camera.retrieveImage((objectHandle, byteBuffer, length, info) -> {
-                    FilesUtil.getFileFromBytes(activityId, mode,
+                    FilesUtil.getFileFromBytes(albumId, mode,
                             byteBuffer.array(), length, info.filename, objectHandle, info.captureDate, photoPx);
                     PicBean byId = AppDB.getInstance().picDao().findById(String.valueOf(picId));
                     emitter.onNext(byId);

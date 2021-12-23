@@ -14,6 +14,9 @@ import java.util.Map;
 
 import io.reactivex.rxjava3.core.ObservableEmitter;
 import io.reactivex.rxjava3.core.ObservableOnSubscribe;
+import okhttp3.MediaType;
+import okhttp3.MultipartBody;
+import okhttp3.RequestBody;
 
 
 /**
@@ -38,11 +41,13 @@ public class UpLoadImageSubscribe implements ObservableOnSubscribe<PicBean> {
     @Override
     public void subscribe(ObservableEmitter<PicBean> emitter) throws Exception {
         File file = new File(mPicPath);
-        Map<String, Object> map = new HashMap<>();
-        map.put("token", mUpLoadToken);
-        map.put("file", file);
-
-        RetrofitClient.getServer().getUpLoad(map);
+//        Map<String, Object> map = new HashMap<>();
+//        map.put("token", mUpLoadToken);
+//        map.put("file", file);
+        RequestBody requestFile = RequestBody.create(MediaType.parse("multipart/form-data"), file);
+        MultipartBody.Part body = MultipartBody.Part.createFormData("attach_file",
+                file.getName(), requestFile);
+        RetrofitClient.getServer().getUpLoad(mUpLoadToken,body);
 
        // upLoadFile(emitter, mPicPath);
     }

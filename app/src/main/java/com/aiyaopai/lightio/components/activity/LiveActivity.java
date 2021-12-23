@@ -86,10 +86,10 @@ public class LiveActivity extends SessionActivity implements Camera.CameraListen
 
     private void initData() {
 
-        String activityId = getIntent().getStringExtra(Contents.ActivityId);
-        SPUtils.save(Contents.ActivityId, activityId);
+        String albumId = getIntent().getStringExtra(Contents.AlbumId);
+        SPUtils.save(Contents.AlbumId, albumId);
 
-        createDir(activityId);
+        createDir(albumId);
 
         fragments = new ArrayList<>();
         fragments.add(new LiveFragment());
@@ -122,12 +122,12 @@ public class LiveActivity extends SessionActivity implements Camera.CameraListen
     /**
      * 创建文件夹
      */
-    private void createDir(String activityId) {
+    private void createDir(String albumId) {
         File activityDir = new File(AppConfig.BASE_PATH);
         if (!activityDir.exists()) {
             activityDir.mkdir();
         }
-        File appDir = new File(FilesUtil.getDirPath(activityId));
+        File appDir = new File(FilesUtil.getDirPath(albumId));
         if (!appDir.exists()) {
             appDir.mkdir();
         }

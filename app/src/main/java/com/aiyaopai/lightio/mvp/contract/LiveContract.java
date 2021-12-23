@@ -6,6 +6,7 @@ import com.aiyaopai.lightio.adapter.PicAdapter;
 import com.aiyaopai.lightio.base.BaseView;
 import com.aiyaopai.lightio.bean.BaseBean;
 import com.aiyaopai.lightio.bean.PicBean;
+import com.aiyaopai.lightio.bean.UploadTokenBean;
 import com.aiyaopai.lightio.databinding.FragmentLiveBinding;
 import com.aiyaopai.lightio.ptp.Camera;
 
@@ -17,12 +18,12 @@ import io.reactivex.rxjava3.core.Observable;
 
 public interface LiveContract {
     interface Model {
-        Observable<BaseBean> getUpLoadToken(String activityId);
+        Observable<UploadTokenBean> getUpLoadToken(String albumId);
         List<PicBean> getDataList(List<PicBean> dataList);
     }
 
     interface View extends BaseView {
-        void getTokenSuccess(BaseBean bean);
+        void getTokenSuccess(UploadTokenBean bean);
         void getRecycleViewData(List<PicBean> dataList, PicAdapter adapter);
         void getScanProgress(int progress);
         void getScanComplete();
@@ -40,19 +41,19 @@ public interface LiveContract {
     }
 
     interface Presenter {
-        void getUpLoadToken(String activityId);
+        void getUpLoadToken(String albumId);
         void initToolbar(FragmentLiveBinding binding);
         void initRecycleView(Context context, FragmentLiveBinding binding);
         void setModePx(FragmentLiveBinding binding,PicAdapter adapter);
         void scanningPic(List<Integer> picIds, Camera camera,String activity);
         void upLoadPic(List<PicBean> pathList, String token);
-        void upLoadSingle(int picId, Camera camera,String activityId,String qiNiuToken);
-        void addHandBean(int picId, Camera camera,String activityId,String qiNiuToken,String mode);
+        void upLoadSingle(int picId, Camera camera,String albumId,String qiNiuToken);
+        void addHandBean(int picId, Camera camera,String albumId,String qiNiuToken,String mode);
         void deleteDB();
         void queryUploadedPics();
         void getScanPicIds(int[] handles);
         void handUploadPic(PicBean bean,String qiNiuToken);
-//        void getSdPicNum(String activityId);
+//        void getSdPicNum(String albumId);
     }
 
 }

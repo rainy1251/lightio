@@ -110,9 +110,9 @@ public class NoticePresenter extends BasePresenter<NoticeContract.View> implemen
     }
 
     @Override
-    public void syncSD(String activityId) {
+    public void syncSD(String albumId) {
 
-        File fileAll = new File(AppConfig.BASE_PATH, activityId);
+        File fileAll = new File(AppConfig.BASE_PATH, albumId);
         if (!fileAll.exists()) {
             getView().syncSDComplete();
             return;
