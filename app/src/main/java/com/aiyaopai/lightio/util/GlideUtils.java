@@ -17,8 +17,8 @@ public class GlideUtils {
                 .into(imageView);
     }
 
-    public static void showQiNiu(Context context, ImageView imageView, Object url) {
-        Glide.with(context).load(url + "?imageView2/1/w/200/h/200/interlace/1")
+    public static void showSta(Context context, ImageView imageView, Object url) {
+        Glide.with(context).load(url+"&download=YWEuanBn&type=r80ws")
                 .placeholder(R.drawable.icon)
                 .dontAnimate()
                 .into(imageView);

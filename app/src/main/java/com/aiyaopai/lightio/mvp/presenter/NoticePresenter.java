@@ -40,8 +40,8 @@ public class NoticePresenter extends BasePresenter<NoticeContract.View> implemen
 
     @Override
     public void getOriginalPic(int pageIndex, String albumId, String photographerId) {
-
-        model.getOriginalPic(pageIndex, albumId, photographerId)
+        int offset =pageIndex*10;
+        model.getOriginalPic(offset, albumId, photographerId)
                 .compose(RxScheduler.Obs_io_main())
                 .to(getView().bindAutoDispose())//解决内存泄漏
                 .subscribe(new CommonObserver<OriginalPicBean>() {
@@ -75,7 +75,6 @@ public class NoticePresenter extends BasePresenter<NoticeContract.View> implemen
                             PicBean picBean;
                             if (bean.getName().contains("_")) {
                                 String[] split = bean.getName().split("_");
-
                                 if (split.length > 1) {
                                     picBean = new PicBean(split[0], bean.getSize(), bean.getUrl(), split[0], 100, 1);
                                 } else {

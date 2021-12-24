@@ -12,6 +12,7 @@ import com.aiyaopai.lightio.databinding.ActivityNoticeBinding;
 import com.aiyaopai.lightio.mvp.contract.NoticeContract;
 import com.aiyaopai.lightio.mvp.presenter.NoticePresenter;
 import com.aiyaopai.lightio.util.Contents;
+import com.aiyaopai.lightio.util.MyLog;
 import com.aiyaopai.lightio.util.MyToast;
 import com.aiyaopai.lightio.util.SPUtils;
 import com.aiyaopai.lightio.view.AppDB;
@@ -71,7 +72,8 @@ public class NoticeActivity extends BaseMvpActivity<NoticePresenter, ActivityNot
     public void getOriginalPic(OriginalPicBean bean) {
         ArrayList<OriginalPicBean.ResultBean> result = (ArrayList<OriginalPicBean.ResultBean>) bean.getResult();
         total = bean.getTotal();
-        if (result.size() > 0) {
+
+        if (pageIndex*10 <total) {
             presenter.syncData(result);
         } else {
             //同步SDCard
@@ -86,7 +88,7 @@ public class NoticeActivity extends BaseMvpActivity<NoticePresenter, ActivityNot
         if (pageIndex == 100) {
             return;
         }
-        presenter.getOriginalPic(pageIndex,albumId, photographerId);
+       presenter.getOriginalPic(pageIndex,albumId, photographerId);
     }
 
     @Override

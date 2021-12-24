@@ -47,7 +47,7 @@ public class UpLoadImageSubscribe implements ObservableOnSubscribe<PicBean> {
         RequestBody requestFile = RequestBody.create(MediaType.parse("multipart/form-data"), file);
         MultipartBody.Part body = MultipartBody.Part.createFormData("attach_file",
                 file.getName(), requestFile);
-        RetrofitClient.getServer().getUpLoad(mUpLoadToken,body);
+        //RetrofitClient.getServer().getUpLoad(mUpLoadToken,body);
 
        // upLoadFile(emitter, mPicPath);
     }

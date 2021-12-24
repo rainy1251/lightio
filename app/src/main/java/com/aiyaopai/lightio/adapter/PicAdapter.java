@@ -6,6 +6,7 @@ import com.aiyaopai.lightio.R;
 import com.aiyaopai.lightio.bean.PicBean;
 import com.aiyaopai.lightio.util.FilesUtil;
 import com.aiyaopai.lightio.util.GlideUtils;
+import com.aiyaopai.lightio.util.MyLog;
 import com.chad.library.adapter.base.BaseQuickAdapter;
 import com.chad.library.adapter.base.viewholder.BaseViewHolder;
 
@@ -29,7 +30,7 @@ public class PicAdapter extends BaseQuickAdapter<PicBean, BaseViewHolder> {
         vh.setText(R.id.tv_name, bean.getPicName());
         vh.setText(R.id.tv_size, FilesUtil.formatSize(bean.getPicSize()));
         if (bean.getPicPath().contains("http")) {
-            GlideUtils.showQiNiu(mContext, vh.getView(R.id.iv_pic), bean.getPicPath());
+            GlideUtils.showSta(mContext, vh.getView(R.id.iv_pic), bean.getPicPath());
         } else {
             GlideUtils.show(mContext, vh.getView(R.id.iv_pic), bean.getPicPath());
         }

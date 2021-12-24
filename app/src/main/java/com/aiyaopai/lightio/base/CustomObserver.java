@@ -39,7 +39,7 @@ public abstract class CustomObserver<T> implements Observer<T>, OnErrorCalBackLi
 
     @Override
     public void onError(int code, String msg) {
-        MyLog.show("code=="+code+"==msg=="+msg);
+
         if (code == Contents.Code_200 || code == Contents.Code_201) {
 
             return;

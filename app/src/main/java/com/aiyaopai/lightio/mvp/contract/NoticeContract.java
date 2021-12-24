@@ -9,7 +9,7 @@ import io.reactivex.rxjava3.core.Observable;
 
 public interface NoticeContract {
     interface Model {
-        Observable<OriginalPicBean> getOriginalPic(int pageIndex, String albumId, String photographerId);
+        Observable<OriginalPicBean> getOriginalPic(int offset, String albumId, String photographerId);
     }
 
     interface View extends BaseView {

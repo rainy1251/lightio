@@ -1,8 +1,11 @@
 package com.aiyaopai.lightio.mvp.presenter;
 
 import android.content.Context;
+import android.net.Uri;
+import android.util.Log;
 import android.view.View;
 
+import androidx.core.content.FileProvider;
 import androidx.recyclerview.widget.GridLayoutManager;
 
 import com.aiyaopai.lightio.R;
@@ -24,6 +27,7 @@ import com.aiyaopai.lightio.util.Contents;
 import com.aiyaopai.lightio.util.FilesUtil;
 import com.aiyaopai.lightio.util.MyLog;
 import com.aiyaopai.lightio.util.SPUtils;
+import com.aiyaopai.lightio.util.UiUtils;
 import com.aiyaopai.lightio.view.AppDB;
 import com.aiyaopai.lightio.view.SpaceItemDecoration;
 import com.google.gson.Gson;
@@ -54,6 +58,9 @@ import io.reactivex.rxjava3.schedulers.Schedulers;
 import okhttp3.MediaType;
 import okhttp3.MultipartBody;
 import okhttp3.RequestBody;
+import okhttp3.ResponseBody;
+import retrofit2.Call;
+import retrofit2.Callback;
 import retrofit2.Response;
 
 public class LivePresenter extends BasePresenter<LiveContract.View> implements LiveContract.Presenter {
@@ -212,7 +219,8 @@ public class LivePresenter extends BasePresenter<LiveContract.View> implements L
      * 批量上传
      */
 
-    PicBean mPicBean ;
+    PicBean mPicBean;
+
     @Override
     public void upLoadPic(List<PicBean> pathList, String albumId) {
 
@@ -220,7 +228,6 @@ public class LivePresenter extends BasePresenter<LiveContract.View> implements L
         if (mode.equals(Contents.HAND_UPLOAD)) {
             return;
         }
-        MyLog.show("hhaaa");
         Observable.fromIterable(pathList)
                 .concatMap(new Function<PicBean, ObservableSource<UploadTokenBean>>() {
                     @Override
@@ -237,32 +244,28 @@ public class LivePresenter extends BasePresenter<LiveContract.View> implements L
                         return RetrofitClient.getServer().getQiNiuToken(body);
                     }
                 })
-                .flatMap(new Function<UploadTokenBean, ObservableSource<Response<UploadFileBean>>>() {
+                .flatMap(new Function<UploadTokenBean, ObservableSource<UploadFileBean>>() {
                     @Override
-                    public ObservableSource<Response<UploadFileBean>> apply(UploadTokenBean uploadTokenBean) throws Throwable {
-                        MyLog.show(uploadTokenBean.getResult().getToken());
-                        MyLog.show(mPicBean.getPicPath());
-
+                    public ObservableSource<UploadFileBean> apply(UploadTokenBean uploadTokenBean) throws Throwable {
+                        MyLog.show(mPicBean.getPicName());
+                        String token = uploadTokenBean.getResult().getToken();
                         File file = new File(mPicBean.getPicPath());
 
-                        RequestBody requestFile = RequestBody.create(MediaType.parse("multipart/form-data"), file);
-                        MultipartBody.Part body = MultipartBody.Part.createFormData("attach_file",
-                                file.getName(), requestFile);
+                        RequestBody requestBody = RequestBody.create(MediaType.parse("image/jpeg"), file);
+                        MultipartBody.Part part = MultipartBody.Part.createFormData("file", file.getName(), requestBody);
+                        RequestBody key = RequestBody.create(MediaType.parse("text/plain"), token);
 
-                        return RetrofitClient.getServer().getUpLoad(uploadTokenBean.getResult().getToken(),body);
+                        return RetrofitClient.getServer().getUpLoad(key, part);
                     }
                 })
                 .compose(RxScheduler.Obs_io_main())
                 .to(getView().bindAutoDispose())
-                .subscribe(new CommonObserver<Response<UploadFileBean>>() {
+                .subscribe(new CustomObserver<UploadFileBean>(getView()) {
                     @Override
-                    public void onNext(@NonNull Response<UploadFileBean> picBean) {
-                      //  getView().getUploadNext(picBean);
-                        MyLog.show(picBean.body().getResult().getSize());
+                    public void onNext(@NotNull UploadFileBean uploadFileBean) {
+                        MyLog.show(uploadFileBean.getResult().getSize()+"===");
                     }
                 });
-
-
     }
 
     /**
