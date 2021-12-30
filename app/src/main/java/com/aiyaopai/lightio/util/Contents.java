@@ -105,4 +105,6 @@ public class Contents  {
     public static final String Original= "Original";
     public static final String HelpUrl = "https://help.aiyaopai.com/DocManage/5c1794913eb3303d6086bcbd";
 
+    public static int offsetNum =50;
+    public static int albumOffsetNum =10;
 }

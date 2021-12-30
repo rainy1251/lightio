@@ -1,9 +1,13 @@
 package com.aiyaopai.lightio.net.qiniu;
 
 
+import com.aiyaopai.lightio.base.CommonObserver;
 import com.aiyaopai.lightio.bean.PicBean;
+import com.aiyaopai.lightio.bean.UploadFileBean;
+import com.aiyaopai.lightio.bean.UploadZipBean;
 import com.aiyaopai.lightio.net.RetrofitClient;
 import com.aiyaopai.lightio.util.FilesUtil;
+import com.aiyaopai.lightio.util.MyLog;
 import com.qiniu.android.storage.UploadOptions;
 
 import org.json.JSONException;
@@ -12,8 +16,10 @@ import java.io.File;
 import java.util.HashMap;
 import java.util.Map;
 
+import io.reactivex.rxjava3.annotations.NonNull;
 import io.reactivex.rxjava3.core.ObservableEmitter;
 import io.reactivex.rxjava3.core.ObservableOnSubscribe;
+import io.reactivex.rxjava3.schedulers.Schedulers;
 import okhttp3.MediaType;
 import okhttp3.MultipartBody;
 import okhttp3.RequestBody;
@@ -27,58 +33,48 @@ import okhttp3.RequestBody;
  */
 public class UpLoadImageSubscribe implements ObservableOnSubscribe<PicBean> {
 
-    //    private PicBean mPicBean;
+
     private String mUpLoadToken;
     private String mPicPath;
     private PicBean mPicBean;
 
-    public UpLoadImageSubscribe(PicBean picBean, String token) {
+    public UpLoadImageSubscribe(PicBean picBean) {
         this.mPicPath = picBean.getPicPath();
         this.mPicBean = picBean;
-        this.mUpLoadToken = token;
+        this.mUpLoadToken = picBean.getToken();
     }
 
     @Override
     public void subscribe(ObservableEmitter<PicBean> emitter) throws Exception {
-        File file = new File(mPicPath);
-//        Map<String, Object> map = new HashMap<>();
-//        map.put("token", mUpLoadToken);
-//        map.put("file", file);
-        RequestBody requestFile = RequestBody.create(MediaType.parse("multipart/form-data"), file);
-        MultipartBody.Part body = MultipartBody.Part.createFormData("attach_file",
-                file.getName(), requestFile);
-        //RetrofitClient.getServer().getUpLoad(mUpLoadToken,body);
 
-       // upLoadFile(emitter, mPicPath);
-    }
+        String token = mPicBean.getToken();
+        File file = new File(mPicBean.getPicPath());
+        MyLog.show(mPicBean.getPicName()+ "===" + token);
+        RequestBody requestBody = RequestBody.create(file, MediaType.parse("image/jpeg"));
+        MultipartBody.Part part = MultipartBody.Part.createFormData("file", file.getName(), requestBody);
+        RequestBody key = RequestBody.create(token, MediaType.parse("text/plain"));
 
-    private void upLoadFile(ObservableEmitter<PicBean> emitter, String path) {
-        Map<String, String> params = new HashMap<>();
-        params.put("x:LocalKey", mPicBean.getPicId() + ":" + mPicBean.getPicName());
-        QiNiuCloud.configQiNiu().put(path, "1", mUpLoadToken, (key12, info, res) -> {
-            if (info.isOK() || info.statusCode == 579 || info.statusCode == 614) {
-                mPicBean.setProgress(0);
-                mPicBean.setStatus(1);
-                FilesUtil.deleteFile(path);
-                try {
-                    mPicBean.setPicPath(res.getString("url"));
-                } catch (JSONException e) {
-                    e.printStackTrace();
-                }
-                emitter.onNext(mPicBean);
-                emitter.onComplete();
-            } else {
-                mPicBean.setProgress(0);
-                mPicBean.setStatus(-1);
-                emitter.onNext(mPicBean);
-                emitter.onComplete();
-            }
-        }, new UploadOptions(params, null, true, (key1, percent) -> {
-            int progress = (int) (percent * 100);
-            mPicBean.setProgress(progress);
-            mPicBean.setStatus(0);
-            emitter.onNext(mPicBean);
-        }, null));
+        RetrofitClient.getServer().getUpLoad(key, part).subscribeOn(Schedulers.io())
+                .subscribe(new CommonObserver<UploadFileBean>() {
+                    @Override
+                    public void onNext(UploadFileBean uploadFileBean) {
+                        if (uploadFileBean.getResult().getSize() > 0) {
+                            mPicBean.setToken("成功");
+                            mPicBean.setProgress(0);
+                            mPicBean.setStatus(1);
+                            FilesUtil.deleteFile(mPicPath);
+                            emitter.onNext(mPicBean);
+                            emitter.onComplete();
+                        }
+                    }
+
+                    @Override
+                    public void onError(@NonNull Throwable e) {
+                        super.onError(e);
+                        MyLog.show("e====="+e.toString());
+                    }
+                });
+
     }
 
 }

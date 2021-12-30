@@ -12,6 +12,7 @@ import com.aiyaopai.lightio.mvp.contract.NoticeContract;
 import com.aiyaopai.lightio.mvp.model.NoticeModel;
 import com.aiyaopai.lightio.net.RxScheduler;
 import com.aiyaopai.lightio.util.AppConfig;
+import com.aiyaopai.lightio.util.Contents;
 import com.aiyaopai.lightio.util.ModifyExif;
 import com.aiyaopai.lightio.view.AppDB;
 
@@ -40,7 +41,7 @@ public class NoticePresenter extends BasePresenter<NoticeContract.View> implemen
 
     @Override
     public void getOriginalPic(int pageIndex, String albumId, String photographerId) {
-        int offset =pageIndex*10;
+        int offset = pageIndex * Contents.offsetNum;
         model.getOriginalPic(offset, albumId, photographerId)
                 .compose(RxScheduler.Obs_io_main())
                 .to(getView().bindAutoDispose())//解决内存泄漏
@@ -71,19 +72,10 @@ public class NoticePresenter extends BasePresenter<NoticeContract.View> implemen
                     @Override
                     public Integer apply(@NonNull OriginalPicBean.ResultBean bean) throws Throwable {
 //TODO
-                        if (!TextUtils.isEmpty(bean.getName())) {
-                            PicBean picBean;
-                            if (bean.getName().contains("_")) {
-                                String[] split = bean.getName().split("_");
-                                if (split.length > 1) {
-                                    picBean = new PicBean(split[0], bean.getSize(), bean.getUrl(), split[0], 100, 1);
-                                } else {
-                                    picBean = new PicBean("YAOPAI", bean.getSize(), bean.getUrl(), "", 100, 1);
-                                }
+                        if (!TextUtils.isEmpty(bean.getOriginalName())) {
 
-                            } else {
-                                picBean = new PicBean(bean.getName(), bean.getSize(), bean.getUrl(),"133", 100, 1);
-                            }
+                            PicBean picBean = new PicBean(bean.getOriginalName(), bean.getSize(), bean.getUrl(), "0", 100, 1);
+
                             AppDB.getInstance().picDao().insert(picBean);
                             syncNum++;
                         }

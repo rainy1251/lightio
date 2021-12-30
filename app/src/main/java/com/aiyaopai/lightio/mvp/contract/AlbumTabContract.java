@@ -8,7 +8,7 @@ import io.reactivex.rxjava3.core.Observable;
 
 public interface AlbumTabContract {
     interface Model {
-        Observable<AlbumListBean> getList(int pageIndex);
+        Observable<AlbumListBean> getList(int offset,String state);
     }
 
     interface View extends BaseView {
@@ -16,7 +16,7 @@ public interface AlbumTabContract {
     }
 
     interface Presenter {
-        void getList(int pageIndex);
+        void getList(int pageIndex,String state);
     }
 
 }

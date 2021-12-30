@@ -89,6 +89,12 @@
     </string-array>
 
     <string-array name="list_type">
+        <item>Pending</item>
+        <item>Ongoing</item>
+        <item>Over</item>
+    </string-array>
+
+    <string-array name="list_cn_type">
         <item>未开始</item>
         <item>进行中</item>
         <item>已结束</item>

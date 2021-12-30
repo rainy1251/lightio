@@ -30,12 +30,14 @@ public class AlbumFragment extends BaseFragment<FragmentActivityListBinding> {
         viewBinding.includeList.tvToolbarTitle.setText("活动列表");
 
         String[] tab_key = getResources().getStringArray(R.array.list_type);
+        String[] list_cn_type = getResources().getStringArray(R.array.list_cn_type);
 
         //添加tab
-//        for (int i = 0; i < tab_key.length; i++) {
-//            viewBinding.tabLayout.addTab(viewBinding.tabLayout.newTab().setText(tab_key[i]));
-//        }
-        mFragments.add( new AlbumTabFragment());
+        for (int i = 0; i < tab_key.length; i++) {
+            viewBinding.tabLayout.addTab(viewBinding.tabLayout.newTab().setText(list_cn_type[i]));
+            mFragments.add( new AlbumTabFragment(tab_key[i]));
+        }
+
 
         viewBinding.vpView.setOrientation(ViewPager2.ORIENTATION_HORIZONTAL);
         HomeTabPagerAdapter mPagerAdapter = new HomeTabPagerAdapter(this,mFragments);
@@ -47,7 +49,7 @@ public class AlbumFragment extends BaseFragment<FragmentActivityListBinding> {
                 ,true   , new TabLayoutMediator.TabConfigurationStrategy() {
             @Override
             public void onConfigureTab(@NonNull @NotNull TabLayout.Tab tab, int position) {
-                tab.setText(tab_key[position]);
+                tab.setText(list_cn_type[position]);
             }
         }).attach();
     }

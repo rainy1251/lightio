@@ -1,11 +1,8 @@
 package com.aiyaopai.lightio.mvp.presenter;
 
 import android.content.Context;
-import android.net.Uri;
-import android.util.Log;
 import android.view.View;
 
-import androidx.core.content.FileProvider;
 import androidx.recyclerview.widget.GridLayoutManager;
 
 import com.aiyaopai.lightio.R;
@@ -16,22 +13,25 @@ import com.aiyaopai.lightio.base.CustomObserver;
 import com.aiyaopai.lightio.bean.PicBean;
 import com.aiyaopai.lightio.bean.UploadFileBean;
 import com.aiyaopai.lightio.bean.UploadTokenBean;
+import com.aiyaopai.lightio.bean.UploadZipBean;
 import com.aiyaopai.lightio.databinding.FragmentLiveBinding;
 import com.aiyaopai.lightio.mvp.contract.LiveContract;
 import com.aiyaopai.lightio.mvp.model.LiveModel;
 import com.aiyaopai.lightio.net.RetrofitClient;
 import com.aiyaopai.lightio.net.RxScheduler;
 import com.aiyaopai.lightio.net.qiniu.QiNiuImageSubscribe;
+import com.aiyaopai.lightio.net.qiniu.UpLoadImageSubscribe;
 import com.aiyaopai.lightio.ptp.Camera;
 import com.aiyaopai.lightio.util.Contents;
 import com.aiyaopai.lightio.util.FilesUtil;
 import com.aiyaopai.lightio.util.MyLog;
+import com.aiyaopai.lightio.util.MyToast;
 import com.aiyaopai.lightio.util.SPUtils;
-import com.aiyaopai.lightio.util.UiUtils;
 import com.aiyaopai.lightio.view.AppDB;
 import com.aiyaopai.lightio.view.SpaceItemDecoration;
 import com.google.gson.Gson;
 
+import org.greenrobot.eventbus.ThreadMode;
 import org.jetbrains.annotations.NotNull;
 
 import java.io.File;
@@ -51,17 +51,16 @@ import io.reactivex.rxjava3.core.Observable;
 import io.reactivex.rxjava3.core.ObservableEmitter;
 import io.reactivex.rxjava3.core.ObservableOnSubscribe;
 import io.reactivex.rxjava3.core.ObservableSource;
+import io.reactivex.rxjava3.core.Single;
 import io.reactivex.rxjava3.functions.Action;
+import io.reactivex.rxjava3.functions.BiFunction;
 import io.reactivex.rxjava3.functions.Consumer;
 import io.reactivex.rxjava3.functions.Function;
+import io.reactivex.rxjava3.functions.Function3;
 import io.reactivex.rxjava3.schedulers.Schedulers;
 import okhttp3.MediaType;
 import okhttp3.MultipartBody;
 import okhttp3.RequestBody;
-import okhttp3.ResponseBody;
-import retrofit2.Call;
-import retrofit2.Callback;
-import retrofit2.Response;
 
 public class LivePresenter extends BasePresenter<LiveContract.View> implements LiveContract.Presenter {
 
@@ -219,51 +218,43 @@ public class LivePresenter extends BasePresenter<LiveContract.View> implements L
      * 批量上传
      */
 
-    PicBean mPicBean;
+    ArrayList<UploadZipBean> zipBeans = new ArrayList<>();
 
     @Override
     public void upLoadPic(List<PicBean> pathList, String albumId) {
 
-        String mode = SPUtils.getModeString(Contents.UPLOAD_MODE);
-        if (mode.equals(Contents.HAND_UPLOAD)) {
-            return;
-        }
+        TimeZone tz = TimeZone.getDefault();
+        int timezoneOffset = (tz.getRawOffset()) / (3600 * 1000);
+        Map<String, Object> map = new HashMap<>();
+        map.put("albumId", albumId);
+        map.put("timezoneOffset", timezoneOffset);
+        Gson gson = new Gson();
+        String strEntity = gson.toJson(map);
+        RequestBody body = RequestBody.create(strEntity, MediaType.parse("application/json"));
+
+        Observable<UploadTokenBean> uploadTokenObservable = RetrofitClient.getServer().getQiNiuToken(body).subscribeOn(Schedulers.io());
+
         Observable.fromIterable(pathList)
-                .concatMap(new Function<PicBean, ObservableSource<UploadTokenBean>>() {
+                .zipWith(uploadTokenObservable, new BiFunction<PicBean, UploadTokenBean, PicBean>() {
                     @Override
-                    public ObservableSource<UploadTokenBean> apply(PicBean picBean) throws Throwable {
-                        mPicBean = picBean;
-                        TimeZone tz = TimeZone.getDefault();
-                        int timezoneOffset = (tz.getRawOffset()) / (3600 * 1000);
-                        Map<String, Object> map = new HashMap<>();
-                        map.put("albumId", albumId);
-                        map.put("timezoneOffset", timezoneOffset);
-                        Gson gson = new Gson();
-                        String strEntity = gson.toJson(map);
-                        RequestBody body = RequestBody.create(MediaType.parse("application/json"), strEntity);
-                        return RetrofitClient.getServer().getQiNiuToken(body);
-                    }
-                })
-                .flatMap(new Function<UploadTokenBean, ObservableSource<UploadFileBean>>() {
-                    @Override
-                    public ObservableSource<UploadFileBean> apply(UploadTokenBean uploadTokenBean) throws Throwable {
-                        MyLog.show(mPicBean.getPicName());
+                    public PicBean apply(PicBean picBean, UploadTokenBean uploadTokenBean) throws Throwable {
                         String token = uploadTokenBean.getResult().getToken();
-                        File file = new File(mPicBean.getPicPath());
-
-                        RequestBody requestBody = RequestBody.create(MediaType.parse("image/jpeg"), file);
-                        MultipartBody.Part part = MultipartBody.Part.createFormData("file", file.getName(), requestBody);
-                        RequestBody key = RequestBody.create(MediaType.parse("text/plain"), token);
-
-                        return RetrofitClient.getServer().getUpLoad(key, part);
+                        picBean.setToken(token);
+                        return picBean;
                     }
                 })
-                .compose(RxScheduler.Obs_io_main())
-                .to(getView().bindAutoDispose())
-                .subscribe(new CustomObserver<UploadFileBean>(getView()) {
+                .flatMap(new Function<PicBean, ObservableSource<PicBean>>() {
                     @Override
-                    public void onNext(@NotNull UploadFileBean uploadFileBean) {
-                        MyLog.show(uploadFileBean.getResult().getSize()+"===");
+                    public ObservableSource<PicBean> apply(PicBean picBean) throws Throwable {
+                        return Observable.create(new UpLoadImageSubscribe(picBean));
+                    }
+                })
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe(new CommonObserver<PicBean>() {
+                    @Override
+                    public void onNext(PicBean bean) {
+                       // getView().getUploadSingleNext(bean);
+                        MyLog.show(bean.getPicName());
                     }
                 });
     }
@@ -273,9 +264,22 @@ public class LivePresenter extends BasePresenter<LiveContract.View> implements L
      */
     @Override
     public void upLoadSingle(int picId, Camera camera, String albumId, String qiNiuToken) {
+
+        TimeZone tz = TimeZone.getDefault();
+        int timezoneOffset = (tz.getRawOffset()) / (3600 * 1000);
+        Map<String, Object> map = new HashMap<>();
+        map.put("albumId", albumId);
+        map.put("timezoneOffset", timezoneOffset);
+        Gson gson = new Gson();
+        String strEntity = gson.toJson(map);
+        RequestBody body = RequestBody.create(strEntity, MediaType.parse("application/json"));
+
+        Observable<UploadTokenBean> uploadTokenObservable = RetrofitClient.getServer().getQiNiuToken(body).subscribeOn(Schedulers.io());
+
         String uploadMode = SPUtils.getModeString(Contents.UPLOAD_MODE);
         String photoPx = SPUtils.getPxString(Contents.PHOTO_PX);
-        Observable.create(new ObservableOnSubscribe<PicBean>() {
+
+        Observable<PicBean> picBeanObservable = Observable.create(new ObservableOnSubscribe<PicBean>() {
             @Override
             public void subscribe(@NonNull ObservableEmitter<PicBean> emitter) throws Throwable {
                 camera.retrieveImage((objectHandle, byteBuffer, length, info) -> {
@@ -287,22 +291,30 @@ public class LivePresenter extends BasePresenter<LiveContract.View> implements L
                     emitter.onComplete();
                 }, picId);
             }
-        }).flatMap(new Function<PicBean, ObservableSource<PicBean>>() {
-            @Override
-            public ObservableSource<PicBean> apply(PicBean bean) throws Throwable {
-                return Observable.create(new QiNiuImageSubscribe(bean, qiNiuToken));
+        }).subscribeOn(Schedulers.io());
 
+        Observable.zip(picBeanObservable, uploadTokenObservable, new BiFunction<PicBean, UploadTokenBean, PicBean>() {
+            @Override
+            public PicBean apply(PicBean picBean, UploadTokenBean uploadTokenBean) throws Throwable {
+
+                String token = uploadTokenBean.getResult().getToken();
+                picBean.setToken(token);
+                return picBean;
             }
-        }).compose(RxScheduler.Obs_io_main())
-                .to(getView().bindAutoDispose())
+        })
+                .flatMap(new Function<PicBean, ObservableSource<PicBean>>() {
+                    @Override
+                    public ObservableSource<PicBean> apply(PicBean picBean) throws Throwable {
+                        return Observable.create(new UpLoadImageSubscribe(picBean));
+                    }
+                })
+                .observeOn(AndroidSchedulers.mainThread())
                 .subscribe(new CommonObserver<PicBean>() {
                     @Override
                     public void onNext(PicBean bean) {
                         getView().getUploadSingleNext(bean);
                     }
-                })
-        ;
-
+                });
     }
 
     /**

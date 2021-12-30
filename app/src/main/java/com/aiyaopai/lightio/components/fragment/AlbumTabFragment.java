@@ -31,6 +31,11 @@ public class AlbumTabFragment extends BaseMvpFragment<AlbumTabPresenter, Fragmen
     private ActivityListAdapter mAdapter;
     private AlbumTabPresenter presenter;
     private int pageIndex = 0;
+    private String mType;
+
+    public AlbumTabFragment(String type) {
+        this.mType = type;
+    }
 
     public AlbumTabFragment() {
 
@@ -47,7 +52,7 @@ public class AlbumTabFragment extends BaseMvpFragment<AlbumTabPresenter, Fragmen
     @Override
     protected void initData() {
 
-        presenter.getList(pageIndex);
+        presenter.getList(pageIndex,mType);
         dataList = new ArrayList<>();
         mAdapter = new ActivityListAdapter(getActivity(), R.layout.item_list_tab, dataList);
         LinearLayoutManager manager = new LinearLayoutManager(getActivity());
@@ -71,7 +76,7 @@ public class AlbumTabFragment extends BaseMvpFragment<AlbumTabPresenter, Fragmen
     public void loadMore() {
         super.loadMore();
         pageIndex++;
-        presenter.getList(pageIndex);
+        presenter.getList(pageIndex,mType);
     }
 
     @Override
@@ -79,16 +84,16 @@ public class AlbumTabFragment extends BaseMvpFragment<AlbumTabPresenter, Fragmen
         super.refresh();
         pageIndex = 0;
         dataList.clear();
-        presenter.getList(pageIndex);
+        presenter.getList(pageIndex,mType);
     }
 
     @Subscribe(threadMode = ThreadMode.MAIN)
     public void loginEvent(LoginSuccessEvent event) {
         if (event.isLogin()) {
-            pageIndex =0;
+            pageIndex = 0;
             dataList.clear();
             mAdapter.notifyDataSetChanged();
-            presenter.getList(pageIndex);
+            presenter.getList(pageIndex,mType);
         }
     }
 

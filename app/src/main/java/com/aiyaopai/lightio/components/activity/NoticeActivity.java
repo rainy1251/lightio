@@ -73,7 +73,7 @@ public class NoticeActivity extends BaseMvpActivity<NoticePresenter, ActivityNot
         ArrayList<OriginalPicBean.ResultBean> result = (ArrayList<OriginalPicBean.ResultBean>) bean.getResult();
         total = bean.getTotal();
 
-        if (pageIndex*10 <total) {
+        if (pageIndex*Contents.offsetNum <total) {
             presenter.syncData(result);
         } else {
             //同步SDCard

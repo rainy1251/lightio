@@ -10,7 +10,7 @@ public class NoticeModel implements NoticeContract.Model {
 
     @Override
     public Observable<OriginalPicBean> getOriginalPic(int offset, String albumId, String photographerId) {
-        return RetrofitClient.getServer().getOriginalPic(offset,10,albumId,photographerId);
+        return RetrofitClient.getServer().getOriginalPic(offset,50,albumId,photographerId);
     }
 
 }

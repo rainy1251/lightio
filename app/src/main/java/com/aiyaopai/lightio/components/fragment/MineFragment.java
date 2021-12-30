@@ -70,6 +70,7 @@ public class MineFragment extends BaseMvpFragment<MinePresenter, FragmentMineBin
         SPUtils.save(Contents.access_token, "");
         SPUtils.save(Contents.refresh_token, "");
         SPUtils.save(Contents.Id, "");
+        SPUtils.save(Contents.tokenBeginAt, "");
         viewBinding.tvName.setText("请登录");
         MyToast.show("退出成功");
         EventBus.getDefault().post(new LoginSuccessEvent(true));

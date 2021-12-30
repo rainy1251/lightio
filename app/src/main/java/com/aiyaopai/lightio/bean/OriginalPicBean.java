@@ -40,6 +40,16 @@ public class OriginalPicBean implements Serializable {
         private String url;
         private int width;
 
+        public String getOriginalName() {
+            return originalName;
+        }
+
+        public void setOriginalName(String originalName) {
+            this.originalName = originalName;
+        }
+
+        private String originalName;
+
         public String getAlbumId() {
             return albumId;
         }

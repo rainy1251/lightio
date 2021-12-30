@@ -78,4 +78,14 @@ public class PicBean {
     public int progress;
     public int status;
 
+    public String getToken() {
+        return token;
+    }
+
+    public void setToken(String token) {
+        this.token = token;
+    }
+
+    public String token;
+
 }

@@ -6,7 +6,7 @@ import androidx.room.RoomDatabase;
 import com.aiyaopai.lightio.bean.PicBean;
 import com.aiyaopai.lightio.db.PicDao;
 
-@Database(entities = {PicBean.class}, version = 5)
+@Database(entities = {PicBean.class}, version = 6)
 public abstract class AppDatabase extends RoomDatabase {
         public abstract PicDao picDao();
     }

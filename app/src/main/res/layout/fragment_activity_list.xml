@@ -25,7 +25,6 @@
         app:tabMode="auto"
         app:tabPaddingEnd="20dp"
         app:tabPaddingStart="20dp"
-        android:visibility="gone"
         app:tabSelectedTextColor="@color/black"
         app:tabTextColor="@color/color_666666" />
 

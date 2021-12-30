@@ -72,7 +72,7 @@ public interface APIService {
     @FormUrlEncoded
     @POST("/oauth/connect/token")
     @Headers("Content-Type:application/x-www-form-urlencoded")
-    Call<SignInBean> refreshToken(@Field("client_id") String client_id
+    Call<ResponseBody> refreshToken(@Field("client_id") String client_id
             , @Field("grant_type") String grant_type, @Field("refresh_token") String refresh_token);
     /**
      * 退出登录
@@ -100,7 +100,7 @@ public interface APIService {
      */
     @GET("/livealbum/list")
     Observable<AlbumListBean> getAlbumList(@Query("offset") int offset
-            , @Query("limit") int limit, @Query("roles") String roles);
+            , @Query("limit") int limit, @Query("roles") String roles, @Query("state") String state);
 
     /**
      * 获取图片上传令牌

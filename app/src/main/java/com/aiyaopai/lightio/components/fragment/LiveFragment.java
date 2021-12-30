@@ -286,6 +286,7 @@ public class LiveFragment extends BaseMvpFragment<LivePresenter, FragmentLiveBin
             return;
         }
         localNum++;
+        viewBinding.tvTotal.setText(String.valueOf(localNum));
         String uploadMode = SPUtils.getModeString(Contents.UPLOAD_MODE);
         if (uploadMode.equals(Contents.HAND_UPLOAD)) {
             presenter.addHandBean(handle, camera(), albumId, qiNiuToken, uploadMode);
@@ -420,7 +421,7 @@ public class LiveFragment extends BaseMvpFragment<LivePresenter, FragmentLiveBin
             if (pics2 != null && pics2.size() > 0) {
                 dataList.addAll(0, pics2);
                 mAdapter.notifyDataSetChanged();
-                presenter.upLoadPic(pics2, albumId);//上传全部未上传的照片
+              presenter.upLoadPic(pics2, albumId);//上传全部未上传的照片
             }
         }
 

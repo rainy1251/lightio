@@ -2,11 +2,11 @@
   "formatVersion": 1,
   "database": {
     "version": 5,
-    "identityHash": "ef192f2b4897b0948b479de061a5c33a",
+    "identityHash": "c934ac757c9efb9601ba38ca3f465a66",
     "entities": [
       {
         "tableName": "PicBean",
-        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`pid` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, `pic_name` TEXT, `picSize` INTEGER NOT NULL, `picPath` TEXT, `picId` TEXT, `progress` INTEGER NOT NULL, `status` INTEGER NOT NULL)",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`pid` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, `pic_name` TEXT, `picSize` INTEGER NOT NULL, `picPath` TEXT, `token` TEXT, `progress` INTEGER NOT NULL, `status` INTEGER NOT NULL)",
         "fields": [
           {
             "fieldPath": "pid",
@@ -33,8 +33,8 @@
             "notNull": false
           },
           {
-            "fieldPath": "picId",
-            "columnName": "picId",
+            "fieldPath": "token",
+            "columnName": "token",
             "affinity": "TEXT",
             "notNull": false
           },
@@ -64,7 +64,7 @@
     "views": [],
     "setupQueries": [
       "CREATE TABLE IF NOT EXISTS room_master_table (id INTEGER PRIMARY KEY,identity_hash TEXT)",
-      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, 'ef192f2b4897b0948b479de061a5c33a')"
+      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, 'c934ac757c9efb9601ba38ca3f465a66')"
     ]
   }
 }

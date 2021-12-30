@@ -8,7 +8,7 @@ import io.reactivex.rxjava3.core.Observable;
 
 public class AlbumTabModel implements AlbumTabContract.Model {
     @Override
-    public Observable<AlbumListBean> getList(int pageIndex) {
-        return RetrofitClient.getServer().getAlbumList(pageIndex,10,"Owner");
+    public Observable<AlbumListBean> getList(int offset,String state) {
+        return RetrofitClient.getServer().getAlbumList(offset,10,"Owner",state);
     }
 }
