@@ -19,8 +19,10 @@ import com.aiyaopai.lightio.mvp.contract.LiveContract;
 import com.aiyaopai.lightio.mvp.model.LiveModel;
 import com.aiyaopai.lightio.net.RetrofitClient;
 import com.aiyaopai.lightio.net.RxScheduler;
+import com.aiyaopai.lightio.net.qiniu.CeshiSubscribe;
 import com.aiyaopai.lightio.net.qiniu.QiNiuImageSubscribe;
 import com.aiyaopai.lightio.net.qiniu.UpLoadImageSubscribe;
+import com.aiyaopai.lightio.net.qiniu.ZipUploadSubscribe;
 import com.aiyaopai.lightio.ptp.Camera;
 import com.aiyaopai.lightio.util.Contents;
 import com.aiyaopai.lightio.util.FilesUtil;
@@ -51,6 +53,7 @@ import io.reactivex.rxjava3.core.Observable;
 import io.reactivex.rxjava3.core.ObservableEmitter;
 import io.reactivex.rxjava3.core.ObservableOnSubscribe;
 import io.reactivex.rxjava3.core.ObservableSource;
+import io.reactivex.rxjava3.core.Observer;
 import io.reactivex.rxjava3.core.Single;
 import io.reactivex.rxjava3.functions.Action;
 import io.reactivex.rxjava3.functions.BiFunction;
@@ -218,45 +221,28 @@ public class LivePresenter extends BasePresenter<LiveContract.View> implements L
      * 批量上传
      */
 
-    ArrayList<UploadZipBean> zipBeans = new ArrayList<>();
-
     @Override
     public void upLoadPic(List<PicBean> pathList, String albumId) {
 
-        TimeZone tz = TimeZone.getDefault();
-        int timezoneOffset = (tz.getRawOffset()) / (3600 * 1000);
-        Map<String, Object> map = new HashMap<>();
-        map.put("albumId", albumId);
-        map.put("timezoneOffset", timezoneOffset);
-        Gson gson = new Gson();
-        String strEntity = gson.toJson(map);
-        RequestBody body = RequestBody.create(strEntity, MediaType.parse("application/json"));
-
-        Observable<UploadTokenBean> uploadTokenObservable = RetrofitClient.getServer().getQiNiuToken(body).subscribeOn(Schedulers.io());
-
         Observable.fromIterable(pathList)
-                .zipWith(uploadTokenObservable, new BiFunction<PicBean, UploadTokenBean, PicBean>() {
-                    @Override
-                    public PicBean apply(PicBean picBean, UploadTokenBean uploadTokenBean) throws Throwable {
-                        String token = uploadTokenBean.getResult().getToken();
-                        picBean.setToken(token);
-                        return picBean;
-                    }
-                })
-                .flatMap(new Function<PicBean, ObservableSource<PicBean>>() {
-                    @Override
-                    public ObservableSource<PicBean> apply(PicBean picBean) throws Throwable {
-                        return Observable.create(new UpLoadImageSubscribe(picBean));
-                    }
-                })
+                .concatMap((Function<PicBean, ObservableSource<PicBean>>) picBean -> Observable.create(new ZipUploadSubscribe(picBean, albumId)))
+                .concatMap((Function<PicBean, ObservableSource<PicBean>>) picBean -> Observable.create(new UpLoadImageSubscribe(picBean)))
+                .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe(new CommonObserver<PicBean>() {
                     @Override
                     public void onNext(PicBean bean) {
-                       // getView().getUploadSingleNext(bean);
-                        MyLog.show(bean.getPicName());
+                        getView().getUploadNext(bean);
+                        MyToast.show(bean.getPicName() + "=chengong="+bean.getToken());
+                    }
+                    @Override
+                    public void onComplete() {
+                        super.onComplete();
+
+                        MyToast.show("onComplete");
                     }
                 });
+
     }
 
     /**
@@ -430,6 +416,5 @@ public class LivePresenter extends BasePresenter<LiveContract.View> implements L
                     }
                 });
     }
-
 
 }

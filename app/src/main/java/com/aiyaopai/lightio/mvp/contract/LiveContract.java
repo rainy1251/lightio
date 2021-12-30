@@ -38,6 +38,9 @@ public interface LiveContract {
         void getUploadHandNext(PicBean bean);
 
         void getUploadHandAdd(PicBean bean);
+
+//        void getZipBean(List<PicBean> beans);
+//        void getZipComplete();
     }
 
     interface Presenter {
@@ -53,7 +56,7 @@ public interface LiveContract {
         void queryUploadedPics();
         void getScanPicIds(int[] handles);
         void handUploadPic(PicBean bean,String qiNiuToken);
-//        void getSdPicNum(String albumId);
+      // void uploadZip(List<PicBean> beans);
     }
 
 }

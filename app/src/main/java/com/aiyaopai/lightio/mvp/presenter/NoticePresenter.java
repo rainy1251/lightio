@@ -74,7 +74,7 @@ public class NoticePresenter extends BasePresenter<NoticeContract.View> implemen
 //TODO
                         if (!TextUtils.isEmpty(bean.getOriginalName())) {
 
-                            PicBean picBean = new PicBean(bean.getOriginalName(), bean.getSize(), bean.getUrl(), "0", 100, 1);
+                            PicBean picBean = new PicBean(bean.getOriginalName(), bean.getSize(), bean.getUrl(), bean.getId(), 100, 1);
 
                             AppDB.getInstance().picDao().insert(picBean);
                             syncNum++;

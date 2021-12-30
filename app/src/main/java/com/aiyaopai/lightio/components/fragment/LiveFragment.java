@@ -188,6 +188,17 @@ public class LiveFragment extends BaseMvpFragment<LivePresenter, FragmentLiveBin
         }
     }
 
+//    @Override
+//    public void getZipBean(List<PicBean> beans) {
+//        //TODO
+//        presenter.uploadZip(beans);
+//    }
+//
+//    @Override
+//    public void getZipComplete() {
+//
+//    }
+
     private void showDialog(List<Integer> ids) {
         String title = "扫描有新照片";
         String content = "共扫描" + ids.size() + "张，是否上传";

@@ -49,20 +49,27 @@ public class UpLoadImageSubscribe implements ObservableOnSubscribe<PicBean> {
 
         String token = mPicBean.getToken();
         File file = new File(mPicBean.getPicPath());
-        MyLog.show(mPicBean.getPicName()+ "===" + token);
         RequestBody requestBody = RequestBody.create(file, MediaType.parse("image/jpeg"));
         MultipartBody.Part part = MultipartBody.Part.createFormData("file", file.getName(), requestBody);
         RequestBody key = RequestBody.create(token, MediaType.parse("text/plain"));
 
-        RetrofitClient.getServer().getUpLoad(key, part).subscribeOn(Schedulers.io())
+        RetrofitClient.getServer().getUpLoad(key, part)
                 .subscribe(new CommonObserver<UploadFileBean>() {
                     @Override
                     public void onNext(UploadFileBean uploadFileBean) {
+                        MyLog.show("uploadFileBean====="+uploadFileBean.getResult().toString());
                         if (uploadFileBean.getResult().getSize() > 0) {
+                            MyLog.show("uploadFileBean=====" + uploadFileBean.getResult().getSize());
                             mPicBean.setToken("成功");
-                            mPicBean.setProgress(0);
+                            mPicBean.setProgress(100);
                             mPicBean.setStatus(1);
                             FilesUtil.deleteFile(mPicPath);
+                            emitter.onNext(mPicBean);
+                            emitter.onComplete();
+                        } else {
+                            mPicBean.setToken("失败");
+                            mPicBean.setProgress(0);
+                            mPicBean.setStatus(-1);
                             emitter.onNext(mPicBean);
                             emitter.onComplete();
                         }
