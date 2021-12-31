@@ -14,12 +14,10 @@ import android.widget.ProgressBar;
 import android.widget.TextView;
 
 import com.aiyaopai.lightio.R;
-import com.aiyaopai.lightio.bean.BaseBean;
-import com.aiyaopai.lightio.bean.UploadTokenBean;
-import com.aiyaopai.lightio.components.activity.SettingActivity;
 import com.aiyaopai.lightio.adapter.PicAdapter;
 import com.aiyaopai.lightio.base.BaseMvpFragment;
 import com.aiyaopai.lightio.bean.PicBean;
+import com.aiyaopai.lightio.components.activity.SettingActivity;
 import com.aiyaopai.lightio.databinding.FragmentLiveBinding;
 import com.aiyaopai.lightio.mvp.contract.LiveContract;
 import com.aiyaopai.lightio.mvp.presenter.LivePresenter;
@@ -102,7 +100,7 @@ public class LiveFragment extends BaseMvpFragment<LivePresenter, FragmentLiveBin
         mAdapter.setOnItemClickListener((adapter, view, position) -> {
             String mode = SPUtils.getModeString(Contents.UPLOAD_MODE);
             if (dataList.get(position).getStatus() == 0 && mode.equals(Contents.HAND_UPLOAD)) {
-                presenter.handUploadPic(dataList.get(position), qiNiuToken);
+                presenter.handUploadPic(dataList.get(position), albumId);
             } else {
                 LargePicDialog dialog = new LargePicDialog(getActivity(),dataList.get(position).getPicPath());
                 dialog.show();
@@ -187,17 +185,6 @@ public class LiveFragment extends BaseMvpFragment<LivePresenter, FragmentLiveBin
             mAdapter.notifyDataSetChanged();
         }
     }
-
-//    @Override
-//    public void getZipBean(List<PicBean> beans) {
-//        //TODO
-//        presenter.uploadZip(beans);
-//    }
-//
-//    @Override
-//    public void getZipComplete() {
-//
-//    }
 
     private void showDialog(List<Integer> ids) {
         String title = "扫描有新照片";
@@ -306,6 +293,9 @@ public class LiveFragment extends BaseMvpFragment<LivePresenter, FragmentLiveBin
         }
     }
 
+    /**
+     * 新增标星照片
+     */
     @Override
     public void rateAdded(int handle) {
         if (camera() == null) {
@@ -341,16 +331,14 @@ public class LiveFragment extends BaseMvpFragment<LivePresenter, FragmentLiveBin
     }
 
     @Override
-    public void getTokenSuccess(UploadTokenBean bean) {
-
-    }
-
-    @Override
     public void getRecycleViewData(List<PicBean> dataList, PicAdapter adapter) {
         this.dataList = dataList;
         this.mAdapter = adapter;
     }
 
+    /**
+     * 确认扫描
+     */
     @Override
     public void confirm(int type) {
 
@@ -400,7 +388,9 @@ public class LiveFragment extends BaseMvpFragment<LivePresenter, FragmentLiveBin
         if (bean.getStatus() == 1) {
             AppDB.getInstance().picDao().update(bean);
             total++;
-            viewBinding.tvSuccess.setText(String.valueOf(total));
+            if (viewBinding != null) {
+                viewBinding.tvSuccess.setText(String.valueOf(total));
+            }
         }
         mAdapter.notifyDataSetChanged();
     }
@@ -414,7 +404,7 @@ public class LiveFragment extends BaseMvpFragment<LivePresenter, FragmentLiveBin
             if (bean != null) {
 
                 dataList.add(0, bean);
-                mAdapter.notifyItemRangeChanged(0, 1);
+                mAdapter.notifyItemRangeChanged(0,10);
             }
         });
     }

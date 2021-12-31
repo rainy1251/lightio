@@ -9,71 +9,42 @@ import com.aiyaopai.lightio.R;
 import com.aiyaopai.lightio.adapter.PicAdapter;
 import com.aiyaopai.lightio.base.BasePresenter;
 import com.aiyaopai.lightio.base.CommonObserver;
-import com.aiyaopai.lightio.base.CustomObserver;
 import com.aiyaopai.lightio.bean.PicBean;
-import com.aiyaopai.lightio.bean.UploadFileBean;
-import com.aiyaopai.lightio.bean.UploadTokenBean;
-import com.aiyaopai.lightio.bean.UploadZipBean;
 import com.aiyaopai.lightio.databinding.FragmentLiveBinding;
 import com.aiyaopai.lightio.mvp.contract.LiveContract;
-import com.aiyaopai.lightio.mvp.model.LiveModel;
-import com.aiyaopai.lightio.net.RetrofitClient;
 import com.aiyaopai.lightio.net.RxScheduler;
-import com.aiyaopai.lightio.net.qiniu.CeshiSubscribe;
-import com.aiyaopai.lightio.net.qiniu.QiNiuImageSubscribe;
 import com.aiyaopai.lightio.net.qiniu.UpLoadImageSubscribe;
-import com.aiyaopai.lightio.net.qiniu.ZipUploadSubscribe;
+import com.aiyaopai.lightio.net.qiniu.UploadTokenSubscribe;
 import com.aiyaopai.lightio.ptp.Camera;
 import com.aiyaopai.lightio.util.Contents;
 import com.aiyaopai.lightio.util.FilesUtil;
-import com.aiyaopai.lightio.util.MyLog;
-import com.aiyaopai.lightio.util.MyToast;
 import com.aiyaopai.lightio.util.SPUtils;
 import com.aiyaopai.lightio.view.AppDB;
 import com.aiyaopai.lightio.view.SpaceItemDecoration;
-import com.google.gson.Gson;
 
-import org.greenrobot.eventbus.ThreadMode;
 import org.jetbrains.annotations.NotNull;
 
-import java.io.File;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.TimeZone;
 
 import io.reactivex.rxjava3.android.schedulers.AndroidSchedulers;
-import io.reactivex.rxjava3.annotations.NonNull;
 import io.reactivex.rxjava3.core.BackpressureStrategy;
 import io.reactivex.rxjava3.core.Flowable;
-import io.reactivex.rxjava3.core.FlowableEmitter;
 import io.reactivex.rxjava3.core.FlowableOnSubscribe;
 import io.reactivex.rxjava3.core.Observable;
-import io.reactivex.rxjava3.core.ObservableEmitter;
 import io.reactivex.rxjava3.core.ObservableOnSubscribe;
 import io.reactivex.rxjava3.core.ObservableSource;
-import io.reactivex.rxjava3.core.Observer;
-import io.reactivex.rxjava3.core.Single;
-import io.reactivex.rxjava3.functions.Action;
-import io.reactivex.rxjava3.functions.BiFunction;
-import io.reactivex.rxjava3.functions.Consumer;
 import io.reactivex.rxjava3.functions.Function;
-import io.reactivex.rxjava3.functions.Function3;
 import io.reactivex.rxjava3.schedulers.Schedulers;
-import okhttp3.MediaType;
-import okhttp3.MultipartBody;
-import okhttp3.RequestBody;
 
 public class LivePresenter extends BasePresenter<LiveContract.View> implements LiveContract.Presenter {
 
-    private final LiveModel model;
     private int progress = 0;
-    private List<Integer> picIds;
 
     public LivePresenter(LiveContract.View view) {
         super(view);
-        model = new LiveModel();
     }
 
     @Override
@@ -131,41 +102,26 @@ public class LivePresenter extends BasePresenter<LiveContract.View> implements L
 
     @Override
     public void getScanPicIds(int[] ids) {
-        picIds = new ArrayList<>();
+        List<Integer> picIds = new ArrayList<>();
         List<Integer> strings = new ArrayList<>();
         for (int id : ids) {
             strings.add(id);
         }
         Flowable.fromIterable(strings).parallel(2)
                 .runOn(Schedulers.io())
-                .doOnCancel(new Action() {
-                    @Override
-                    public void run() throws Throwable {
-                    }
+                .doOnCancel(() -> {
                 })
-                .map(new Function<Integer, String>() {
-                    @Override
-                    public String apply(Integer integer) throws Throwable {
-                        PicBean byPid = AppDB.getInstance().picDao().findById(String.valueOf(integer));
-                        if (byPid == null) {
-                            picIds.add(integer);
-                        }
-                        return "1";
+                .map(integer -> {
+                    PicBean byPid = AppDB.getInstance().picDao().findById(String.valueOf(integer));
+                    if (byPid == null) {
+                        picIds.add(integer);
                     }
+                    return "1";
                 })
                 .sequential()
-                .observeOn(AndroidSchedulers.mainThread()).doOnComplete(new Action() {
-            @Override
-            public void run() throws Throwable {
-                getView().scanIdComplete(picIds);
-            }
-        }).subscribe(new Consumer<String>() {
-            @Override
-            public void accept(String s) throws Throwable {
-
-            }
-        });
-
+                .observeOn(AndroidSchedulers.mainThread())
+                .doOnComplete(() -> getView().scanIdComplete(picIds))
+                .subscribe(s -> {});
 
     }
 
@@ -203,20 +159,6 @@ public class LivePresenter extends BasePresenter<LiveContract.View> implements L
                 });
     }
 
-    @Override
-    public void getUpLoadToken(String albumId) {
-
-        model.getUpLoadToken(albumId)
-                .compose(RxScheduler.Obs_io_main())
-                .to(getView().bindAutoDispose())//解决内存泄漏
-                .subscribe(new CustomObserver<UploadTokenBean>(getView()) {
-                    @Override
-                    public void onNext(@NotNull UploadTokenBean bean) {
-                        getView().getTokenSuccess(bean);
-                    }
-                });
-    }
-
     /**
      * 批量上传
      */
@@ -224,25 +166,23 @@ public class LivePresenter extends BasePresenter<LiveContract.View> implements L
     @Override
     public void upLoadPic(List<PicBean> pathList, String albumId) {
 
+        String mode = SPUtils.getModeString(Contents.UPLOAD_MODE);
+        if (mode.equals(Contents.HAND_UPLOAD)) {
+            return;
+        }
+
         Observable.fromIterable(pathList)
-                .concatMap((Function<PicBean, ObservableSource<PicBean>>) picBean -> Observable.create(new ZipUploadSubscribe(picBean, albumId)))
+                .concatMap((Function<PicBean, ObservableSource<PicBean>>) picBean -> Observable.create(new UploadTokenSubscribe(picBean, albumId)))
                 .concatMap((Function<PicBean, ObservableSource<PicBean>>) picBean -> Observable.create(new UpLoadImageSubscribe(picBean)))
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe(new CommonObserver<PicBean>() {
                     @Override
-                    public void onNext(PicBean bean) {
+                    public void onNext(@NotNull PicBean bean) {
                         getView().getUploadNext(bean);
-                        MyToast.show(bean.getPicName() + "=chengong="+bean.getToken());
-                    }
-                    @Override
-                    public void onComplete() {
-                        super.onComplete();
 
-                        MyToast.show("onComplete");
                     }
                 });
-
     }
 
     /**
@@ -251,49 +191,24 @@ public class LivePresenter extends BasePresenter<LiveContract.View> implements L
     @Override
     public void upLoadSingle(int picId, Camera camera, String albumId, String qiNiuToken) {
 
-        TimeZone tz = TimeZone.getDefault();
-        int timezoneOffset = (tz.getRawOffset()) / (3600 * 1000);
-        Map<String, Object> map = new HashMap<>();
-        map.put("albumId", albumId);
-        map.put("timezoneOffset", timezoneOffset);
-        Gson gson = new Gson();
-        String strEntity = gson.toJson(map);
-        RequestBody body = RequestBody.create(strEntity, MediaType.parse("application/json"));
-
-        Observable<UploadTokenBean> uploadTokenObservable = RetrofitClient.getServer().getQiNiuToken(body).subscribeOn(Schedulers.io());
-
         String uploadMode = SPUtils.getModeString(Contents.UPLOAD_MODE);
         String photoPx = SPUtils.getPxString(Contents.PHOTO_PX);
 
-        Observable<PicBean> picBeanObservable = Observable.create(new ObservableOnSubscribe<PicBean>() {
-            @Override
-            public void subscribe(@NonNull ObservableEmitter<PicBean> emitter) throws Throwable {
-                camera.retrieveImage((objectHandle, byteBuffer, length, info) -> {
+        Observable.create((ObservableOnSubscribe<PicBean>) emitter
+                -> camera.retrieveImage((objectHandle, byteBuffer, length, info)
+                -> {
                     FilesUtil.getFileFromBytes(albumId, uploadMode,
-                            byteBuffer.array(), length, info.filename, objectHandle, info.captureDate, photoPx);
+                    byteBuffer.array(), length, info.filename, objectHandle, info.captureDate, photoPx);
                     PicBean byId = AppDB.getInstance().picDao().findById(String.valueOf(picId));
                     getView().getUploadSingleAdd(byId);
                     emitter.onNext(byId);
                     emitter.onComplete();
-                }, picId);
-            }
-        }).subscribeOn(Schedulers.io());
-
-        Observable.zip(picBeanObservable, uploadTokenObservable, new BiFunction<PicBean, UploadTokenBean, PicBean>() {
-            @Override
-            public PicBean apply(PicBean picBean, UploadTokenBean uploadTokenBean) throws Throwable {
-
-                String token = uploadTokenBean.getResult().getToken();
-                picBean.setToken(token);
-                return picBean;
-            }
-        })
-                .flatMap(new Function<PicBean, ObservableSource<PicBean>>() {
-                    @Override
-                    public ObservableSource<PicBean> apply(PicBean picBean) throws Throwable {
-                        return Observable.create(new UpLoadImageSubscribe(picBean));
-                    }
-                })
+                    }, picId))
+                .flatMap((Function<PicBean, ObservableSource<PicBean>>) picBean
+                        -> Observable.create(new UploadTokenSubscribe(picBean, albumId)))
+                .flatMap((Function<PicBean, ObservableSource<PicBean>>) picBean
+                        -> Observable.create(new UpLoadImageSubscribe(picBean)))
+                .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe(new CommonObserver<PicBean>() {
                     @Override
@@ -301,6 +216,7 @@ public class LivePresenter extends BasePresenter<LiveContract.View> implements L
                         getView().getUploadSingleNext(bean);
                     }
                 });
+
     }
 
     /**
@@ -309,38 +225,29 @@ public class LivePresenter extends BasePresenter<LiveContract.View> implements L
     @Override
     public void addHandBean(int picId, Camera camera, String albumId, String qiNiuToken, String mode) {
         String photoPx = SPUtils.getPxString(Contents.PHOTO_PX);
-        Observable.create(new ObservableOnSubscribe<PicBean>() {
-            @Override
-            public void subscribe(@NonNull ObservableEmitter<PicBean> emitter) throws Throwable {
-                camera.retrieveImage((objectHandle, byteBuffer, length, info) -> {
-                    FilesUtil.getFileFromBytes(albumId, mode,
-                            byteBuffer.array(), length, info.filename, objectHandle, info.captureDate, photoPx);
-                    PicBean byId = AppDB.getInstance().picDao().findById(String.valueOf(picId));
-                    emitter.onNext(byId);
-                    emitter.onComplete();
-                }, picId);
-            }
-        }).compose(RxScheduler.Obs_io_main())
+        Observable.create((ObservableOnSubscribe<PicBean>) emitter -> camera.retrieveImage((objectHandle, byteBuffer, length, info) -> {
+            FilesUtil.getFileFromBytes(albumId, mode,
+                    byteBuffer.array(), length, info.filename, objectHandle, info.captureDate, photoPx);
+            PicBean byId = AppDB.getInstance().picDao().findById(String.valueOf(picId));
+            emitter.onNext(byId);
+            emitter.onComplete();
+        }, picId)).compose(RxScheduler.Obs_io_main())
                 .to(getView().bindAutoDispose())
                 .subscribe(new CommonObserver<PicBean>() {
                     @Override
                     public void onNext(PicBean bean) {
                         getView().getUploadHandAdd(bean);
                     }
-                })
-        ;
+                });
 
     }
 
     @Override
     public void deleteDB() {
-        Flowable.create(new FlowableOnSubscribe<Boolean>() {
-            @Override
-            public void subscribe(@NonNull FlowableEmitter<Boolean> emitter) throws Throwable {
-                AppDB.getInstance().picDao().delete();
-                emitter.onNext(true);
-                emitter.onComplete();
-            }
+        Flowable.create((FlowableOnSubscribe<Boolean>) emitter -> {
+            AppDB.getInstance().picDao().delete();
+            emitter.onNext(true);
+            emitter.onComplete();
         }, BackpressureStrategy.BUFFER)
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
@@ -354,59 +261,40 @@ public class LivePresenter extends BasePresenter<LiveContract.View> implements L
     @Override
     public void queryUploadedPics() {
 
-        Flowable<Map<String, List<PicBean>>> f1 = Flowable.create(new FlowableOnSubscribe<Map<String, List<PicBean>>>() {
-            @Override
-            public void subscribe(@NonNull FlowableEmitter<Map<String, List<PicBean>>> emitter) throws Throwable {
-                List<PicBean> all = AppDB.getInstance().picDao().getStatus(1);
-                Map<String, List<PicBean>> map = new HashMap<>();
-                map.put("net", all);
-                emitter.onNext(map);
-                emitter.onComplete();
-            }
+        Flowable<Map<String, List<PicBean>>> f1 = Flowable.create(emitter -> {
+            List<PicBean> all = AppDB.getInstance().picDao().getStatus(1);
+            Map<String, List<PicBean>> map = new HashMap<>();
+            map.put("net", all);
+            emitter.onNext(map);
+            emitter.onComplete();
         }, BackpressureStrategy.BUFFER);
 
-        Flowable<Map<String, List<PicBean>>> f2 = Flowable.create(new FlowableOnSubscribe<Map<String, List<PicBean>>>() {
-            @Override
-            public void subscribe(@NonNull FlowableEmitter<Map<String, List<PicBean>>> emitter) throws Throwable {
-                List<PicBean> all2 = AppDB.getInstance().picDao().getStatus(0);
-                Map<String, List<PicBean>> map2 = new HashMap<>();
-                map2.put("local", all2);
-                emitter.onNext(map2);
-                emitter.onComplete();
-            }
+        Flowable<Map<String, List<PicBean>>> f2 = Flowable.create(emitter -> {
+            List<PicBean> all2 = AppDB.getInstance().picDao().getStatus(0);
+            Map<String, List<PicBean>> map2 = new HashMap<>();
+            map2.put("local", all2);
+            emitter.onNext(map2);
+            emitter.onComplete();
         }, BackpressureStrategy.BUFFER);
-
 
         Flowable.concat(f1, f2)
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
-                .subscribe(new Consumer<Map<String, List<PicBean>>>() {
-                    @Override
-                    public void accept(Map<String, List<PicBean>> map) throws Throwable {
-                        getView().getAllPics(map);
-                    }
-                });
+                .subscribe(map -> getView().getAllPics(map));
     }
 
     /**
      * 手动上传
      */
     @Override
-    public void handUploadPic(PicBean bean, String qiNiuToken) {
+    public void handUploadPic(PicBean bean, String albumId) {
 
-        Observable.create(new ObservableOnSubscribe<PicBean>() {
-            @Override
-            public void subscribe(@NonNull ObservableEmitter<PicBean> emitter) throws Throwable {
-                emitter.onNext(bean);
-                emitter.onComplete();
-            }
-        }).flatMap(new Function<PicBean, ObservableSource<PicBean>>() {
-            @Override
-            public ObservableSource<PicBean> apply(PicBean bean) throws Throwable {
-                return Observable.create(new QiNiuImageSubscribe(bean, qiNiuToken));
-
-            }
+        Observable.create((ObservableOnSubscribe<PicBean>) emitter -> {
+            emitter.onNext(bean);
+            emitter.onComplete();
         })
+                .flatMap((Function<PicBean, ObservableSource<PicBean>>) bean1 -> Observable.create(new UploadTokenSubscribe(bean1, albumId)))
+                .flatMap((Function<PicBean, ObservableSource<PicBean>>) picBean -> Observable.create(new UpLoadImageSubscribe(picBean)))
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe(new CommonObserver<PicBean>() {

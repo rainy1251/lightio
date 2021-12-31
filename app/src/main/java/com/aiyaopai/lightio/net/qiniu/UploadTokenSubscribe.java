@@ -7,7 +7,6 @@ import com.aiyaopai.lightio.base.CommonObserver;
 import com.aiyaopai.lightio.bean.PicBean;
 import com.aiyaopai.lightio.bean.UploadTokenBean;
 import com.aiyaopai.lightio.net.RetrofitClient;
-import com.aiyaopai.lightio.util.MyLog;
 import com.google.gson.Gson;
 
 import java.util.HashMap;
@@ -27,12 +26,12 @@ import okhttp3.RequestBody;
  * Author: levi
  * CreateDate: 2020/8/13 14:48
  */
-public class ZipUploadSubscribe implements ObservableOnSubscribe<PicBean> {
+public class UploadTokenSubscribe implements ObservableOnSubscribe<PicBean> {
 
     private String mAlbumId;
     private PicBean mPicBean;
 
-    public ZipUploadSubscribe(PicBean picBean, String albumId) {
+    public UploadTokenSubscribe(PicBean picBean, String albumId) {
         this.mPicBean = picBean;
         this.mAlbumId = albumId;
     }
@@ -51,7 +50,6 @@ public class ZipUploadSubscribe implements ObservableOnSubscribe<PicBean> {
 
         RetrofitClient.getServer()
                 .getQiNiuToken(body)
-//                .subscribeOn(Schedulers.io())
                 .subscribe(new CommonObserver<UploadTokenBean>() {
                     @Override
                     public void onNext(UploadTokenBean tokenBean) {
@@ -66,11 +64,8 @@ public class ZipUploadSubscribe implements ObservableOnSubscribe<PicBean> {
                     @Override
                     public void onError(@NonNull Throwable e) {
                         super.onError(e);
-                        MyLog.show("e=====" + e.toString());
                     }
                 });
-
-
     }
 
 }

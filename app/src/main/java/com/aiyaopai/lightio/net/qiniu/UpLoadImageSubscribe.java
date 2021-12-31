@@ -1,25 +1,20 @@
 package com.aiyaopai.lightio.net.qiniu;
 
 
+import android.text.TextUtils;
+
 import com.aiyaopai.lightio.base.CommonObserver;
 import com.aiyaopai.lightio.bean.PicBean;
 import com.aiyaopai.lightio.bean.UploadFileBean;
-import com.aiyaopai.lightio.bean.UploadZipBean;
 import com.aiyaopai.lightio.net.RetrofitClient;
 import com.aiyaopai.lightio.util.FilesUtil;
 import com.aiyaopai.lightio.util.MyLog;
-import com.qiniu.android.storage.UploadOptions;
-
-import org.json.JSONException;
 
 import java.io.File;
-import java.util.HashMap;
-import java.util.Map;
 
 import io.reactivex.rxjava3.annotations.NonNull;
 import io.reactivex.rxjava3.core.ObservableEmitter;
 import io.reactivex.rxjava3.core.ObservableOnSubscribe;
-import io.reactivex.rxjava3.schedulers.Schedulers;
 import okhttp3.MediaType;
 import okhttp3.MultipartBody;
 import okhttp3.RequestBody;
@@ -33,15 +28,12 @@ import okhttp3.RequestBody;
  */
 public class UpLoadImageSubscribe implements ObservableOnSubscribe<PicBean> {
 
-
-    private String mUpLoadToken;
     private String mPicPath;
     private PicBean mPicBean;
 
     public UpLoadImageSubscribe(PicBean picBean) {
         this.mPicPath = picBean.getPicPath();
         this.mPicBean = picBean;
-        this.mUpLoadToken = picBean.getToken();
     }
 
     @Override
@@ -57,15 +49,17 @@ public class UpLoadImageSubscribe implements ObservableOnSubscribe<PicBean> {
                 .subscribe(new CommonObserver<UploadFileBean>() {
                     @Override
                     public void onNext(UploadFileBean uploadFileBean) {
-                        MyLog.show("uploadFileBean====="+uploadFileBean.getResult().toString());
+
                         if (uploadFileBean.getResult().getSize() > 0) {
-                            MyLog.show("uploadFileBean=====" + uploadFileBean.getResult().getSize());
                             mPicBean.setToken("成功");
                             mPicBean.setProgress(100);
                             mPicBean.setStatus(1);
-                            FilesUtil.deleteFile(mPicPath);
                             emitter.onNext(mPicBean);
                             emitter.onComplete();
+                            if (!TextUtils.isEmpty(uploadFileBean.getCallbackResult().getUrl())) {
+                                mPicBean.setPicPath(uploadFileBean.getCallbackResult().getUrl());
+                            }
+                            FilesUtil.deleteFile(mPicPath);
                         } else {
                             mPicBean.setToken("失败");
                             mPicBean.setProgress(0);
@@ -73,12 +67,13 @@ public class UpLoadImageSubscribe implements ObservableOnSubscribe<PicBean> {
                             emitter.onNext(mPicBean);
                             emitter.onComplete();
                         }
+
                     }
 
                     @Override
                     public void onError(@NonNull Throwable e) {
                         super.onError(e);
-                        MyLog.show("e====="+e.toString());
+                        MyLog.show(e.toString());
                     }
                 });
 

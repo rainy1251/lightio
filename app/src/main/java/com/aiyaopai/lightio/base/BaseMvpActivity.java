@@ -55,8 +55,8 @@ public abstract class BaseMvpActivity<P extends BasePresenter,T extends ViewBind
     protected void onDestroy() {
         if (mPresenter != null) {
             mPresenter.detachView();
+            viewBinding = null;
         }
-        viewBinding = null;
         super.onDestroy();
     }
     /**

@@ -95,7 +95,6 @@ public class RetrofitClient {
         HttpLoggingInterceptor interceptor = new HttpLoggingInterceptor();
         //显示日志
         interceptor.setLevel(HttpLoggingInterceptor.Level.BODY);
-
         return interceptor;
     }
 
@@ -109,8 +108,8 @@ public class RetrofitClient {
                 okHttpClient = new OkHttpClient().newBuilder()
 
                         //设置Header
-                       //.addInterceptor(new TokenInterceptor())
-                        .addInterceptor(getHeaderInterceptor())
+                      // .addInterceptor(new TokenInterceptor())
+                      .addInterceptor(getHeaderInterceptor())
                         .addInterceptor(errorCodeInterceptor())
                         .connectTimeout(timeout, timeUnit)
                         .addNetworkInterceptor(getInterceptor())

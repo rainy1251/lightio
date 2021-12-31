@@ -17,8 +17,8 @@ import io.reactivex.rxjava3.core.Observable;
 import okhttp3.MultipartBody;
 import okhttp3.RequestBody;
 import okhttp3.ResponseBody;
+
 import retrofit2.Call;
-import retrofit2.Response;
 import retrofit2.http.Body;
 import retrofit2.http.Field;
 import retrofit2.http.FieldMap;
@@ -74,12 +74,6 @@ public interface APIService {
     @Headers("Content-Type:application/x-www-form-urlencoded")
     Call<ResponseBody> refreshToken(@Field("client_id") String client_id
             , @Field("grant_type") String grant_type, @Field("refresh_token") String refresh_token);
-    /**
-     * 退出登录
-     */
-    @FormUrlEncoded
-    @POST(".")
-    Observable<BaseBean> signOutApi(@FieldMap Map<String, Object> map);
 
     /**
      * 重置密码

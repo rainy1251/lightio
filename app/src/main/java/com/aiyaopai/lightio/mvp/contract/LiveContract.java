@@ -4,26 +4,19 @@ import android.content.Context;
 
 import com.aiyaopai.lightio.adapter.PicAdapter;
 import com.aiyaopai.lightio.base.BaseView;
-import com.aiyaopai.lightio.bean.BaseBean;
 import com.aiyaopai.lightio.bean.PicBean;
-import com.aiyaopai.lightio.bean.UploadTokenBean;
 import com.aiyaopai.lightio.databinding.FragmentLiveBinding;
 import com.aiyaopai.lightio.ptp.Camera;
 
 import java.util.List;
 import java.util.Map;
 
-import io.reactivex.rxjava3.core.Observable;
-
 
 public interface LiveContract {
     interface Model {
-        Observable<UploadTokenBean> getUpLoadToken(String albumId);
-        List<PicBean> getDataList(List<PicBean> dataList);
     }
 
     interface View extends BaseView {
-        void getTokenSuccess(UploadTokenBean bean);
         void getRecycleViewData(List<PicBean> dataList, PicAdapter adapter);
         void getScanProgress(int progress);
         void getScanComplete();
@@ -38,13 +31,9 @@ public interface LiveContract {
         void getUploadHandNext(PicBean bean);
 
         void getUploadHandAdd(PicBean bean);
-
-//        void getZipBean(List<PicBean> beans);
-//        void getZipComplete();
     }
 
     interface Presenter {
-        void getUpLoadToken(String albumId);
         void initToolbar(FragmentLiveBinding binding);
         void initRecycleView(Context context, FragmentLiveBinding binding);
         void setModePx(FragmentLiveBinding binding,PicAdapter adapter);
@@ -55,8 +44,7 @@ public interface LiveContract {
         void deleteDB();
         void queryUploadedPics();
         void getScanPicIds(int[] handles);
-        void handUploadPic(PicBean bean,String qiNiuToken);
-      // void uploadZip(List<PicBean> beans);
+        void handUploadPic(PicBean bean,String albumId);
     }
 
 }

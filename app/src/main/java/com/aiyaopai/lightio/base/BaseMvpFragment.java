@@ -88,8 +88,8 @@ public abstract class BaseMvpFragment<P extends BasePresenter,T extends ViewBind
         super.onDestroyView();
         if (mPresenter != null) {
             mPresenter.detachView();
+            viewBinding = null;
         }
-        viewBinding = null;
     }
 
     @Override
