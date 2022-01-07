@@ -30,7 +30,7 @@ public class BaseApplication extends MultiDexApplication {
         super.onCreate();
         instance = this;
         SPUtils.instance(getApplicationContext());
-        Bugly.init(getApplicationContext(), "50b31392fb", true);
+        Bugly.init(getApplicationContext(), "48f37500eb", true);
 
     }
 

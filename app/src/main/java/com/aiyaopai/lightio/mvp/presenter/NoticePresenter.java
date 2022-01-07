@@ -72,9 +72,9 @@ public class NoticePresenter extends BasePresenter<NoticeContract.View> implemen
                     @Override
                     public Integer apply(@NonNull OriginalPicBean.ResultBean bean) throws Throwable {
 //TODO
-                        if (!TextUtils.isEmpty(bean.getOriginalName())) {
+                        if (!TextUtils.isEmpty(bean.getName())) {
 
-                            PicBean picBean = new PicBean(bean.getOriginalName(), bean.getSize(), bean.getUrl(), bean.getId(), 100, 1);
+                            PicBean picBean = new PicBean(bean.getName(), bean.getSize(), bean.getUrl(), bean.getLocalId(), 100, 1);
 
                             AppDB.getInstance().picDao().insert(picBean);
                             syncNum++;

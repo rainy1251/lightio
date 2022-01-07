@@ -4,6 +4,7 @@ import android.content.Context;
 
 import com.aiyaopai.lightio.adapter.PicAdapter;
 import com.aiyaopai.lightio.base.BaseView;
+import com.aiyaopai.lightio.bean.CategoryBean;
 import com.aiyaopai.lightio.bean.PicBean;
 import com.aiyaopai.lightio.databinding.FragmentLiveBinding;
 import com.aiyaopai.lightio.ptp.Camera;
@@ -31,6 +32,7 @@ public interface LiveContract {
         void getUploadHandNext(PicBean bean);
 
         void getUploadHandAdd(PicBean bean);
+        void setCategoryList(CategoryBean bean);
     }
 
     interface Presenter {
@@ -43,8 +45,11 @@ public interface LiveContract {
         void addHandBean(int picId, Camera camera,String albumId,String qiNiuToken,String mode);
         void deleteDB();
         void queryUploadedPics();
-        void getScanPicIds(int[] handles);
+        void getScanPicIds(int[] handles,Camera camera);
         void handUploadPic(PicBean bean,String albumId);
+
+        void getCategoryList(String albumId);
+
     }
 
 }

@@ -3,6 +3,7 @@ package com.aiyaopai.lightio.components.fragment;
 import android.annotation.SuppressLint;
 import android.content.Intent;
 import android.graphics.Bitmap;
+import android.graphics.Color;
 import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
 import android.os.Handler;
@@ -16,6 +17,7 @@ import android.widget.TextView;
 import com.aiyaopai.lightio.R;
 import com.aiyaopai.lightio.adapter.PicAdapter;
 import com.aiyaopai.lightio.base.BaseMvpFragment;
+import com.aiyaopai.lightio.bean.CategoryBean;
 import com.aiyaopai.lightio.bean.PicBean;
 import com.aiyaopai.lightio.components.activity.SettingActivity;
 import com.aiyaopai.lightio.databinding.FragmentLiveBinding;
@@ -35,6 +37,8 @@ import com.aiyaopai.lightio.view.QrCodeDialog;
 import com.aiyaopai.lightio.view.ScanningDialog;
 import com.aiyaopai.lightio.view.SessionActivity;
 import com.aiyaopai.lightio.view.SessionView;
+import com.bigkoo.pickerview.builder.OptionsPickerBuilder;
+import com.bigkoo.pickerview.view.OptionsPickerView;
 import com.king.zxing.util.CodeUtils;
 import com.qiniu.android.utils.AsyncRun;
 
@@ -62,6 +66,9 @@ public class LiveFragment extends BaseMvpFragment<LivePresenter, FragmentLiveBin
     private int localNum;
     private boolean autoScan;
     private TrafficInfo speed;
+    private int groupCount;
+    private String groupName ="全部";
+    private boolean groupFlag;
 
     @Override
     protected void initView() {
@@ -90,19 +97,20 @@ public class LiveFragment extends BaseMvpFragment<LivePresenter, FragmentLiveBin
 
         presenter.queryUploadedPics();
         initListener();
+        presenter.getCategoryList(albumId);
     }
 
     private void initListener() {
         viewBinding.includeLive.ivBack.setOnClickListener(this);
         viewBinding.includeLive.ivSet.setOnClickListener(this);
-        viewBinding.llTotal.setOnClickListener(this);
+        viewBinding.rlGroup.setOnClickListener(this);
         viewBinding.includeLive.tvRightRight.setOnClickListener(this);
         mAdapter.setOnItemClickListener((adapter, view, position) -> {
             String mode = SPUtils.getModeString(Contents.UPLOAD_MODE);
             if (dataList.get(position).getStatus() == 0 && mode.equals(Contents.HAND_UPLOAD)) {
                 presenter.handUploadPic(dataList.get(position), albumId);
             } else {
-                LargePicDialog dialog = new LargePicDialog(getActivity(),dataList.get(position).getPicPath());
+                LargePicDialog dialog = new LargePicDialog(getActivity(), dataList.get(position).getPicPath());
                 dialog.show();
             }
         });
@@ -145,7 +153,7 @@ public class LiveFragment extends BaseMvpFragment<LivePresenter, FragmentLiveBin
             }
             picIds.clear();
             if (autoScan) {
-                presenter.getScanPicIds(handles);
+                presenter.getScanPicIds(handles, camera());
             }
             isCreate = false;
         });
@@ -165,12 +173,15 @@ public class LiveFragment extends BaseMvpFragment<LivePresenter, FragmentLiveBin
     /**
      * 手动上传进度更新
      */
+    @SuppressLint("SetTextI18n")
     @Override
     public void getUploadHandNext(PicBean bean) {
         if (bean.getStatus() == 1) {
             AppDB.getInstance().picDao().update(bean);
             total++;
+            groupCount++;
             viewBinding.tvSuccess.setText(String.valueOf(total));
+            viewBinding.tvGroup.setText(groupName + " (" + groupCount + ")");
         }
         mAdapter.notifyDataSetChanged();
     }
@@ -184,6 +195,45 @@ public class LiveFragment extends BaseMvpFragment<LivePresenter, FragmentLiveBin
             dataList.add(0, bean);
             mAdapter.notifyDataSetChanged();
         }
+    }
+
+    @SuppressLint("DefaultLocale")
+    @Override
+    public void setCategoryList(CategoryBean beans) {
+        if (beans.getResult().size() == 0) {
+            viewBinding.rlGroup.setVisibility(View.GONE);
+            return;
+        }
+        groupCount =total;
+        viewBinding.tvGroup.setText(String.format("%s (%d)", "全部", total));
+        if (!groupFlag) {
+            return;
+        }
+        List<CategoryBean.ResultBean> result = beans.getResult();
+        CategoryBean.ResultBean resultBean = new CategoryBean.ResultBean();
+        resultBean.setCount(total);
+        resultBean.setName("全部 ");
+        resultBean.setId("");
+        result.add(0, resultBean);
+        ArrayList<String> mOptionsItems = new ArrayList<>();
+        for (CategoryBean.ResultBean bean : beans.getResult()) {
+            mOptionsItems.add(bean.getName() + " (" + bean.getCount() + ")");
+        }
+        OptionsPickerView<String> pvOptions = new OptionsPickerBuilder(getActivity(), (options1, options2, options3, v) -> {
+            groupName = beans.getResult().get(options1).getName();
+            groupCount = beans.getResult().get(options1).getCount();
+            String categoryId = beans.getResult().get(options1).getId();
+            SPUtils.save(Contents.categoryId, categoryId);
+            viewBinding.tvGroup.setText(String.format("%s (%d)", groupName, groupCount));
+        }).setTitleText("选择上传至指定分类")
+                .setContentTextSize(20)
+                .setDividerColor(getResources().getColor(R.color.line))
+                .setTitleColor(Color.BLACK)
+                .setTextColorCenter(Color.BLACK)
+                .isCenterLabel(false)
+                .build();
+        pvOptions.setPicker(mOptionsItems);
+        pvOptions.show();
     }
 
     private void showDialog(List<Integer> ids) {
@@ -278,6 +328,7 @@ public class LiveFragment extends BaseMvpFragment<LivePresenter, FragmentLiveBin
     }
 
     //增加照片
+
     @Override
     public void objectAdded(int handle, int format) {
         if (camera() == null) {
@@ -327,6 +378,10 @@ public class LiveFragment extends BaseMvpFragment<LivePresenter, FragmentLiveBin
             case R.id.tv_right_right:
                 createQrCode(albumId);
                 break;
+            case R.id.rl_group:
+                presenter.getCategoryList(albumId);
+                groupFlag = true;
+                break;
         }
     }
 
@@ -371,25 +426,31 @@ public class LiveFragment extends BaseMvpFragment<LivePresenter, FragmentLiveBin
     }
 
 
+    @SuppressLint("SetTextI18n")
     @Override
     public void getUploadNext(PicBean bean) {
 
         if (bean.getStatus() == 1) {
             AppDB.getInstance().picDao().update(bean);
             total++;
+            groupCount++;
             viewBinding.tvSuccess.setText(String.valueOf(total));
+            viewBinding.tvGroup.setText(groupName + " (" + groupCount + ")");
         }
         mAdapter.notifyDataSetChanged();
 
     }
 
+    @SuppressLint("SetTextI18n")
     @Override
     public void getUploadSingleNext(PicBean bean) {
         if (bean.getStatus() == 1) {
             AppDB.getInstance().picDao().update(bean);
             total++;
             if (viewBinding != null) {
+                groupCount++;
                 viewBinding.tvSuccess.setText(String.valueOf(total));
+                viewBinding.tvGroup.setText(groupName + " (" + groupCount + ")");
             }
         }
         mAdapter.notifyDataSetChanged();
@@ -404,7 +465,7 @@ public class LiveFragment extends BaseMvpFragment<LivePresenter, FragmentLiveBin
             if (bean != null) {
 
                 dataList.add(0, bean);
-                mAdapter.notifyItemRangeChanged(0,10);
+                mAdapter.notifyItemRangeChanged(0, 10);
             }
         });
     }
@@ -422,7 +483,7 @@ public class LiveFragment extends BaseMvpFragment<LivePresenter, FragmentLiveBin
             if (pics2 != null && pics2.size() > 0) {
                 dataList.addAll(0, pics2);
                 mAdapter.notifyDataSetChanged();
-              presenter.upLoadPic(pics2, albumId);//上传全部未上传的照片
+                presenter.upLoadPic(pics2, albumId);//上传全部未上传的照片
             }
         }
 
@@ -475,6 +536,7 @@ public class LiveFragment extends BaseMvpFragment<LivePresenter, FragmentLiveBin
     @Override
     public void onDestroy() {
         super.onDestroy();
+        SPUtils.save(Contents.categoryId, "");
         isCreate = true;
         presenter.deleteDB();
 

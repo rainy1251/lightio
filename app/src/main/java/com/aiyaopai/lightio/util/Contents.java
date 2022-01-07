@@ -24,7 +24,7 @@ public class Contents  {
     public static final String offset = "offset";
     public static final String limit = "limit";
     public static final String roles = "roles";
-
+    public static String categoryId="categoryId";
 
 
 
@@ -107,4 +107,5 @@ public class Contents  {
 
     public static int offsetNum =50;
     public static int albumOffsetNum =10;
+
 }

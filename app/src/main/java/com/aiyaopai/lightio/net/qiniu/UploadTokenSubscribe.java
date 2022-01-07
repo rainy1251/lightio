@@ -7,6 +7,8 @@ import com.aiyaopai.lightio.base.CommonObserver;
 import com.aiyaopai.lightio.bean.PicBean;
 import com.aiyaopai.lightio.bean.UploadTokenBean;
 import com.aiyaopai.lightio.net.RetrofitClient;
+import com.aiyaopai.lightio.util.Contents;
+import com.aiyaopai.lightio.util.SPUtils;
 import com.google.gson.Gson;
 
 import java.util.HashMap;
@@ -38,12 +40,15 @@ public class UploadTokenSubscribe implements ObservableOnSubscribe<PicBean> {
 
     @Override
     public void subscribe(ObservableEmitter<PicBean> emitter) throws Exception {
-
+        String categoryId = SPUtils.getString(Contents.categoryId);
         TimeZone tz = TimeZone.getDefault();
         int timezoneOffset = (tz.getRawOffset()) / (3600 * 1000);
         Map<String, Object> map = new HashMap<>();
         map.put("albumId", mAlbumId);
         map.put("timezoneOffset", timezoneOffset);
+        if (!TextUtils.isEmpty(categoryId)) {
+            map.put("categoryId", categoryId);
+        }
         Gson gson = new Gson();
         String strEntity = gson.toJson(map);
         RequestBody body = RequestBody.create(strEntity, MediaType.parse("application/json"));

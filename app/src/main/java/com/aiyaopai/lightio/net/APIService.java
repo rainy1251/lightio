@@ -4,6 +4,7 @@ package com.aiyaopai.lightio.net;
 import com.aiyaopai.lightio.bean.AlbumListBean;
 import com.aiyaopai.lightio.bean.BannerBean;
 import com.aiyaopai.lightio.bean.BaseBean;
+import com.aiyaopai.lightio.bean.CategoryBean;
 import com.aiyaopai.lightio.bean.OriginalPicBean;
 import com.aiyaopai.lightio.bean.SignInBean;
 import com.aiyaopai.lightio.bean.UploadFileBean;
@@ -115,4 +116,10 @@ public interface APIService {
     @GET("/originalpicture/list")
     Observable<OriginalPicBean> getOriginalPic(@Query("offset") int offset, @Query("limit") int limit
             , @Query("albumId") String albumId, @Query("createdUserId") String createdUserId);
+
+    /**
+     * 获取原图分类列表
+     */
+    @GET("/originalpicturecategory/list")
+    Observable<CategoryBean> getCategoryList(@Query("albumId") String albumId);
 }

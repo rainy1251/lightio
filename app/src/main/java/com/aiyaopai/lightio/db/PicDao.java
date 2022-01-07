@@ -22,11 +22,11 @@ public interface PicDao {
     @Query("SELECT * FROM picbean WHERE pid IN (:picIds)")
     List<PicBean> loadAllByIds(int[] picIds);
 
-    @Query("SELECT * FROM picbean WHERE pic_name Like :name")
-    PicBean findByName(String name);
-
     @Query("SELECT * FROM picbean WHERE picId Like :picId")
     PicBean findById(String picId);
+
+    @Query("SELECT * FROM picbean WHERE pic_name Like :name")
+    PicBean findByName(String name);
 
     @Insert
     void insertAll(PicBean... pics);

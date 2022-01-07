@@ -54,6 +54,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="52dp"
                 custom:leftText="修改密码"
+                android:visibility="gone"
                 custom:leftTextColor="@color/dark"
                 custom:leftTextImage="@mipmap/edit_pwd"
                 custom:rightTextImage="@mipmap/back_right"

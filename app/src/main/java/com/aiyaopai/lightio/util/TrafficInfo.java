@@ -160,7 +160,7 @@ public class TrafficInfo {
      */
     public String getNetSpeed() {
         String speed;
-        long curRxBytes = getNetworkRxBytes();
+        long curRxBytes = getNetworkTxBytes();
         if (preRxBytes == 0)
             preRxBytes = curRxBytes;
         long bytes = curRxBytes - preRxBytes;

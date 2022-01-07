@@ -9,13 +9,16 @@ import com.aiyaopai.lightio.R;
 import com.aiyaopai.lightio.adapter.PicAdapter;
 import com.aiyaopai.lightio.base.BasePresenter;
 import com.aiyaopai.lightio.base.CommonObserver;
+import com.aiyaopai.lightio.bean.CategoryBean;
 import com.aiyaopai.lightio.bean.PicBean;
 import com.aiyaopai.lightio.databinding.FragmentLiveBinding;
 import com.aiyaopai.lightio.mvp.contract.LiveContract;
+import com.aiyaopai.lightio.net.RetrofitClient;
 import com.aiyaopai.lightio.net.RxScheduler;
 import com.aiyaopai.lightio.net.qiniu.UpLoadImageSubscribe;
 import com.aiyaopai.lightio.net.qiniu.UploadTokenSubscribe;
 import com.aiyaopai.lightio.ptp.Camera;
+import com.aiyaopai.lightio.util.ApiUtils;
 import com.aiyaopai.lightio.util.Contents;
 import com.aiyaopai.lightio.util.FilesUtil;
 import com.aiyaopai.lightio.util.SPUtils;
@@ -101,22 +104,25 @@ public class LivePresenter extends BasePresenter<LiveContract.View> implements L
      */
 
     @Override
-    public void getScanPicIds(int[] ids) {
+    public void getScanPicIds(int[] ids, Camera camera) {
         List<Integer> picIds = new ArrayList<>();
-        List<Integer> strings = new ArrayList<>();
+        List<Integer> picIdList = new ArrayList<>();
         for (int id : ids) {
-            strings.add(id);
+            picIdList.add(id);
         }
-        Flowable.fromIterable(strings).parallel(2)
+
+        Flowable.fromIterable(picIdList).parallel(2)
                 .runOn(Schedulers.io())
                 .doOnCancel(() -> {
                 })
                 .map(integer -> {
+
                     PicBean byPid = AppDB.getInstance().picDao().findById(String.valueOf(integer));
                     if (byPid == null) {
                         picIds.add(integer);
                     }
                     return "1";
+
                 })
                 .sequential()
                 .observeOn(AndroidSchedulers.mainThread())
@@ -153,7 +159,6 @@ public class LivePresenter extends BasePresenter<LiveContract.View> implements L
                     @Override
                     public void onComplete() {
                         super.onComplete();
-
                         getView().getScanComplete();
                     }
                 });
@@ -197,13 +202,13 @@ public class LivePresenter extends BasePresenter<LiveContract.View> implements L
         Observable.create((ObservableOnSubscribe<PicBean>) emitter
                 -> camera.retrieveImage((objectHandle, byteBuffer, length, info)
                 -> {
-                    FilesUtil.getFileFromBytes(albumId, uploadMode,
+            FilesUtil.getFileFromBytes(albumId, uploadMode,
                     byteBuffer.array(), length, info.filename, objectHandle, info.captureDate, photoPx);
-                    PicBean byId = AppDB.getInstance().picDao().findById(String.valueOf(picId));
-                    getView().getUploadSingleAdd(byId);
-                    emitter.onNext(byId);
-                    emitter.onComplete();
-                    }, picId))
+            PicBean byId = AppDB.getInstance().picDao().findById(String.valueOf(picId));
+            getView().getUploadSingleAdd(byId);
+            emitter.onNext(byId);
+            emitter.onComplete();
+        }, picId))
                 .flatMap((Function<PicBean, ObservableSource<PicBean>>) picBean
                         -> Observable.create(new UploadTokenSubscribe(picBean, albumId)))
                 .flatMap((Function<PicBean, ObservableSource<PicBean>>) picBean
@@ -301,6 +306,19 @@ public class LivePresenter extends BasePresenter<LiveContract.View> implements L
                     @Override
                     public void onNext(PicBean bean) {
                         getView().getUploadHandNext(bean);
+                    }
+                });
+    }
+
+    @Override
+    public void getCategoryList(String albumId) {
+        RetrofitClient.getServer().getCategoryList(albumId)
+                .subscribeOn(Schedulers.io())
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe(new CommonObserver<CategoryBean>() {
+                    @Override
+                    public void onNext(CategoryBean bean) {
+                        getView().setCategoryList(bean);
                     }
                 });
     }

@@ -33,6 +33,16 @@ public class OriginalPicBean implements Serializable {
         private String hash;
         private int height;
         private String id;
+
+        public String getLocalId() {
+            return localId;
+        }
+
+        public void setLocalId(String localId) {
+            this.localId = localId;
+        }
+
+        private String localId;
         private String mediaType;
         private String name;
         private int shotAt;
@@ -40,15 +50,6 @@ public class OriginalPicBean implements Serializable {
         private String url;
         private int width;
 
-        public String getOriginalName() {
-            return originalName;
-        }
-
-        public void setOriginalName(String originalName) {
-            this.originalName = originalName;
-        }
-
-        private String originalName;
 
         public String getAlbumId() {
             return albumId;
