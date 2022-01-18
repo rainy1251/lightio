@@ -1,5 +1,7 @@
 package com.aiyaopai.lightio.net;
 
+import android.text.TextUtils;
+
 import com.aiyaopai.lightio.bean.SignInBean;
 import com.aiyaopai.lightio.util.Contents;
 import com.aiyaopai.lightio.util.MyLog;
@@ -8,13 +10,20 @@ import com.aiyaopai.lightio.util.UiUtils;
 import com.google.gson.Gson;
 
 import java.io.IOException;
+import java.nio.charset.Charset;
+import java.util.HashMap;
 
 import okhttp3.Interceptor;
+import okhttp3.MediaType;
 import okhttp3.OkHttpClient;
 import okhttp3.Request;
+import okhttp3.RequestBody;
 import okhttp3.Response;
 import okhttp3.ResponseBody;
+import okio.Buffer;
+import okio.BufferedSource;
 import retrofit2.Call;
+import retrofit2.Retrofit;
 
 import static com.aiyaopai.lightio.net.RetrofitClient.getVersion;
 
@@ -22,85 +31,78 @@ public class TokenInterceptor implements Interceptor {
 
     @Override
     public Response intercept(Chain chain) throws IOException {
-        Request request = chain.request();
-        Response response = chain.proceed(request);
 
-        if (isTokenExpired(response)) {//根据和服务端的约定判断token过期
-            MyLog.show("静默自动刷新Token,然后重新请求数据");
-            //同步请求方式，获取最新的Token
-
+        Response response ;
+        if (isTokenExpired()) {
+            //根据RefreshToken同步请求，获取最新的Token
+             String newToken = getNewToken();
             //使用新的Token，创建新的请求
-            String newToken = getNewToken();
-            Request newRequest = chain.request().newBuilder()
+            Request newRequest = chain.request()
+                    .newBuilder()
                     .addHeader("User-Agent", "LightIO/Android " + getVersion(UiUtils.getContext()))
-                    .addHeader("Authorization", "Bearer " + newToken)
+                     .addHeader("Authorization", "Bearer " + newToken)
                     .build();
-            return chain.proceed(newRequest);
+            response = chain.proceed(newRequest);
+
+        } else {
+            String token = SPUtils.getString(Contents.access_token);
+            Request.Builder builder = chain.request().newBuilder()
+                    .addHeader("User-Agent", "LightIO/Android " + getVersion(UiUtils.getContext()));
+            if (!TextUtils.isEmpty(token)) {
+                builder.addHeader("Authorization", "Bearer " + token);
+            }
+            Request request = builder.build();
+            response = chain.proceed(request);
         }
-//        String token = SPUtils.getString(Contents.access_token);
-//        Request request = chain.request().newBuilder()
-//                .addHeader("User-Agent", "LightIO/Android " + getVersion(UiUtils.getContext()))
-//                .addHeader("Authorization", "Bearer " + token)
-//                .build();
         return response;
-
-    }
-
-    private boolean isTokenExpired(Response response) {
-        if (response.code() == 401) {
-            return true;
-        }
-        return false;
     }
 
     /**
      * 同步请求方式，获取最新的Token
      *
-     * @return
+     * @return newToken
      */
-
     private String getNewToken() {
+        final String[] newToken = {""};
         String refreshToken = SPUtils.getString(Contents.refresh_token);
+        HashMap<String, Object> map = new HashMap<>();
+        map.put(Contents.client_id, "web");
+        map.put(Contents.grant_type, "refresh_token");
+        map.put(Contents.refresh_token, refreshToken);
 
-        Call<ResponseBody> call = RetrofitClient.getServer().refreshToken("web", "refresh_token", refreshToken);
-//        new Thread(new Runnable() { // 子线程执行
-//            @Override
-//            public void run() {
-//
-        try {
-            // 4. call对象执行同步请求，请求数据在子线程中执行
-            ResponseBody body = call.execute().body();
-            Gson gson = new Gson();
-            SignInBean signInBean = gson.fromJson(body.toString(), SignInBean.class);
+        new Thread(() -> {
+            Call<SignInBean> signInBeanCall = RetrofitClient.getServer().refreshToken(map);
+            SignInBean body = null;
+            try {
+                body = signInBeanCall.execute().body();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+            if (body != null) {
+                newToken[0] = body.getAccess_token();
+                SPUtils.save(Contents.access_token, body.getAccess_token());
+                SPUtils.save(Contents.refresh_token, body.getRefresh_token());
+                SPUtils.save(Contents.tokenBeginAt, System.currentTimeMillis());
+                MyLog.show(newToken[0]);
+            }
+        }).start();
 
-            SPUtils.save(Contents.access_token, signInBean.getAccess_token());
-            SPUtils.save(Contents.refresh_token, signInBean.getRefresh_token());
-            SPUtils.save(Contents.tokenBeginAt, signInBean.getExpires_in());
-
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-
-
-//            }
-//        }).start();
-
-        return "";
+        return newToken[0];
     }
 
     /**
      * 根据Response，判断Token是否失效
      */
-//    private boolean isTokenExpired() {
-//        long tokenBeginAt = SPUtils.getLong(Contents.tokenBeginAt);
-//        long tokenEndAt = System.currentTimeMillis();
-//      //  MyLog.show(tokenEndAt-tokenBeginAt + "===");
-//        long l = tokenEndAt - tokenBeginAt;
-//        if ((int) (l / 1000) > 7200 && (int) (l / 1000) < 2590000) {
-//            MyLog.show("Token 过期了");
-//            return true;
-//        }
-//        return false;
-//    }
+    private boolean isTokenExpired() {
+        long tokenBeginAt = SPUtils.getLong(Contents.tokenBeginAt);
+        long tokenEndAt = System.currentTimeMillis();
+        long l = tokenEndAt - tokenBeginAt;
+        if ((int) (l / 1000) > 7200 && (int) (l / 1000) < 2590000) {
+            MyLog.show("Token 过期了");
+            SPUtils.save(Contents.tokenBeginAt,System.currentTimeMillis());//进去一次
+            return true;
+        }
+        return false;
+    }
 
 }

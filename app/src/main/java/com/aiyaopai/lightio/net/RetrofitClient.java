@@ -35,7 +35,7 @@ public class RetrofitClient {
     private APIService apiService;
     private APIService apiService2;
     private static final boolean isDebug = BuildConfig.DEBUG;
-    private final String baseUrl =isDebug ? dev_url:release_url;
+    private final String baseUrl = isDebug ? dev_url : release_url;
     private static final String dev_url = "https://api-sta.devops.back.aiyaopai.com";
     private static final String release_url = "https://api-sta.devops.back.aiyaopai.com";
     private Retrofit retrofit;
@@ -73,7 +73,7 @@ public class RetrofitClient {
             public Response intercept(@NonNull Chain chain) throws IOException {
                 Request original = chain.request();
                 Request.Builder requestBuilder = original.newBuilder()
-                .addHeader("User-Agent", "LightIO/Android "+getVersion(UiUtils.getContext()));
+                        .addHeader("User-Agent", "LightIO/Android " + getVersion(UiUtils.getContext()));
                 String token = SPUtils.getString(Contents.access_token);
                 if (!TextUtils.isEmpty(token)) {
                     requestBuilder.addHeader("Authorization", "Bearer " + token);
@@ -108,8 +108,8 @@ public class RetrofitClient {
                 okHttpClient = new OkHttpClient().newBuilder()
 
                         //设置Header
-                      // .addInterceptor(new TokenInterceptor())
-                      .addInterceptor(getHeaderInterceptor())
+                        .addInterceptor(new TokenInterceptor())
+                     //.addInterceptor(getHeaderInterceptor())
                         .addInterceptor(errorCodeInterceptor())
                         .connectTimeout(timeout, timeUnit)
                         .addNetworkInterceptor(getInterceptor())
@@ -118,7 +118,7 @@ public class RetrofitClient {
             } else {
                 okHttpClient = new OkHttpClient().newBuilder()
                         //设置Header
-                        .addInterceptor(new TokenInterceptor())
+                        .addInterceptor(getHeaderInterceptor())
                         .addInterceptor(errorCodeInterceptor())
                         .connectTimeout(timeout, timeUnit)
                         .addNetworkInterceptor(getInterceptor())
@@ -180,7 +180,7 @@ public class RetrofitClient {
             e.printStackTrace();
             return "";
         }
-        return  info.versionName;
+        return info.versionName;
     }
 
     public static APIService getServer() {

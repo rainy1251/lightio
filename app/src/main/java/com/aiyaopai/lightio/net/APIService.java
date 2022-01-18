@@ -72,9 +72,7 @@ public interface APIService {
      */
     @FormUrlEncoded
     @POST("/oauth/connect/token")
-    @Headers("Content-Type:application/x-www-form-urlencoded")
-    Call<ResponseBody> refreshToken(@Field("client_id") String client_id
-            , @Field("grant_type") String grant_type, @Field("refresh_token") String refresh_token);
+    Call<SignInBean> refreshToken(@FieldMap Map<String, Object> map);
 
     /**
      * 重置密码

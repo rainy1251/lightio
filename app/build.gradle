@@ -31,13 +31,13 @@ android {
         debug {
             keyAlias 'yaopai'
             keyPassword 'yaopai'
-            storeFile file('D:/code/online/ol_debug.jks')
+            storeFile file('D:/code/lightio.jks')
             storePassword 'yaopai'
         }
         release {
             keyAlias 'yaopai'
             keyPassword 'yaopai'
-            storeFile file('D:/code/online/ol_debug.jks')
+            storeFile file('D:/code/lightio.jks')
             storePassword 'yaopai'
         }
     }
