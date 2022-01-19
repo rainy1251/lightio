@@ -28,20 +28,21 @@ import retrofit2.Retrofit;
 import static com.aiyaopai.lightio.net.RetrofitClient.getVersion;
 
 public class TokenInterceptor implements Interceptor {
-
     @Override
     public Response intercept(Chain chain) throws IOException {
 
-        Response response ;
+        Response response;
         if (isTokenExpired()) {
             //根据RefreshToken同步请求，获取最新的Token
-             String newToken = getNewToken();
+            String newToken = getNewToken();
+            MyLog.show("newToken===" + newToken);
             //使用新的Token，创建新的请求
             Request newRequest = chain.request()
                     .newBuilder()
                     .addHeader("User-Agent", "LightIO/Android " + getVersion(UiUtils.getContext()))
-                     .addHeader("Authorization", "Bearer " + newToken)
+                    .addHeader("Authorization", "Bearer " + newToken)
                     .build();
+            MyLog.show("newToken===111==" + newToken);
             response = chain.proceed(newRequest);
 
         } else {
@@ -70,7 +71,6 @@ public class TokenInterceptor implements Interceptor {
         map.put(Contents.grant_type, "refresh_token");
         map.put(Contents.refresh_token, refreshToken);
 
-        new Thread(() -> {
             Call<SignInBean> signInBeanCall = RetrofitClient.getServer().refreshToken(map);
             SignInBean body = null;
             try {
@@ -83,9 +83,7 @@ public class TokenInterceptor implements Interceptor {
                 SPUtils.save(Contents.access_token, body.getAccess_token());
                 SPUtils.save(Contents.refresh_token, body.getRefresh_token());
                 SPUtils.save(Contents.tokenBeginAt, System.currentTimeMillis());
-                MyLog.show(newToken[0]);
             }
-        }).start();
 
         return newToken[0];
     }
@@ -99,7 +97,7 @@ public class TokenInterceptor implements Interceptor {
         long l = tokenEndAt - tokenBeginAt;
         if ((int) (l / 1000) > 7200 && (int) (l / 1000) < 2590000) {
             MyLog.show("Token 过期了");
-            SPUtils.save(Contents.tokenBeginAt,System.currentTimeMillis());//进去一次
+            SPUtils.save(Contents.tokenBeginAt, System.currentTimeMillis());//进去一次
             return true;
         }
         return false;
