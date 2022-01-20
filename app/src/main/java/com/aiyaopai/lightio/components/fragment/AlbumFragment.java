@@ -43,7 +43,6 @@ public class AlbumFragment extends BaseFragment<FragmentActivityListBinding> {
         HomeTabPagerAdapter mPagerAdapter = new HomeTabPagerAdapter(this,mFragments);
         viewBinding.vpView.setAdapter(mPagerAdapter);
         viewBinding.vpView.setCurrentItem(0,false);
-        viewBinding.vpView.setOffscreenPageLimit(1);
 
         new TabLayoutMediator(viewBinding.tabLayout, viewBinding.vpView
                 ,true   , new TabLayoutMediator.TabConfigurationStrategy() {

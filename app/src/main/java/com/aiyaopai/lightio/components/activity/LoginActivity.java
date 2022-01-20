@@ -58,7 +58,8 @@ public class LoginActivity extends BaseMvpActivity<LoginPresenter, ActivityLogin
     public void onLoginCodeSuccess(SignInBean bean) {
         SPUtils.save(Contents.access_token, bean.getAccess_token());
         SPUtils.save(Contents.refresh_token, bean.getRefresh_token());
-        SPUtils.save(Contents.tokenBeginAt,System.currentTimeMillis());
+      //  SPUtils.save(Contents.tokenBeginAt,System.currentTimeMillis());
+        SPUtils.save(Contents.tokenBeginAt,1642556691000L);
         MyToast.show("登录成功");
         EventBus.getDefault().post(new LoginSuccessEvent(true));
         finish();

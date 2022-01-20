@@ -51,14 +51,14 @@ public abstract class CustomObserver<T> implements Observer<T>, OnErrorCalBackLi
         try {
             switch (code) {
                 case Contents.Code_401:
-                    AsyncRun.runInMain(new Runnable() {
-                        @Override
-                        public void run() {
-                            mView.onAgainLogin();
-                        }
-                    });
-
-                    break;
+//                    AsyncRun.runInMain(new Runnable() {
+//                        @Override
+//                        public void run() {
+//                            mView.onAgainLogin();
+//                        }
+//                    });
+//
+//                    break;
                 case Contents.Code_400:
 
                 case Contents.Code_403:

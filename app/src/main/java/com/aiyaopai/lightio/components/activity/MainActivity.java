@@ -15,11 +15,16 @@ import com.aiyaopai.lightio.base.BaseActivity;
 import com.aiyaopai.lightio.components.fragment.AlbumFragment;
 import com.aiyaopai.lightio.components.fragment.MineFragment;
 import com.aiyaopai.lightio.databinding.ActivityMainBinding;
+import com.aiyaopai.lightio.event.LoginAgainEvent;
+import com.aiyaopai.lightio.event.LoginSuccessEvent;
 import com.aiyaopai.lightio.util.MyToast;
 import com.aiyaopai.lightio.util.PermissionUtils;
 import com.aiyaopai.lightio.view.AppDB;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 
+import org.greenrobot.eventbus.EventBus;
+import org.greenrobot.eventbus.Subscribe;
+import org.greenrobot.eventbus.ThreadMode;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.ArrayList;
@@ -50,7 +55,7 @@ public class MainActivity extends BaseActivity<ActivityMainBinding> implements B
 //        View view = binding.root;
 //        setContentView(view);
 
-
+        EventBus.getDefault().register(this);
         viewBinding.bottomNavBar.setItemIconTintList(null);
         viewBinding.bottomNavBar.setOnNavigationItemSelectedListener(this);
         requestExternalRW();
@@ -143,5 +148,16 @@ public class MainActivity extends BaseActivity<ActivityMainBinding> implements B
         }
 
     }
+    @Subscribe(threadMode = ThreadMode.MAIN)
+    public void loginEvent(LoginAgainEvent event) {
+        LoginActivity.start(this);
+    }
 
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        if (EventBus.getDefault().isRegistered(true)) {
+            EventBus.getDefault().unregister(this);
+        }
+    }
 }

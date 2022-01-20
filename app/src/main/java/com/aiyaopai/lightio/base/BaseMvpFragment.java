@@ -5,6 +5,7 @@ import android.content.Context;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
+import android.text.TextUtils;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -104,7 +105,11 @@ public abstract class BaseMvpFragment<P extends BasePresenter,T extends ViewBind
 
     @Override
     public void onError(String msg) {
-        AsyncRun.runInMain(() -> Toast.makeText(mContext, msg, Toast.LENGTH_SHORT).show());
+        AsyncRun.runInMain(() -> {
+            if (!TextUtils.isEmpty(msg)) {
+                MyToast.show(msg);
+            }
+        });
 
     }
     public void initRefreshLayout(SmartRefreshLayout refreshLayout) {
@@ -177,7 +182,9 @@ public abstract class BaseMvpFragment<P extends BasePresenter,T extends ViewBind
         @Override
         public void handleMessage(Message msg) {
             if (msg.what == 0) {
-                MyToast.show((String) msg.obj);
+                if (!TextUtils.isEmpty((String) msg.obj)) {
+                    MyToast.show((String) msg.obj);
+                }
             } else {
                 SPUtils.remove(Contents.access_token);
                 LoginActivity.start(mContext);

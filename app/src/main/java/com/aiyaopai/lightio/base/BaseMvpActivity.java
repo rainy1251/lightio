@@ -5,6 +5,7 @@ import android.content.Context;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
+import android.text.TextUtils;
 import android.widget.Toast;
 
 import androidx.annotation.Nullable;
@@ -26,18 +27,19 @@ import autodispose2.AutoDispose;
 import autodispose2.AutoDisposeConverter;
 import autodispose2.androidx.lifecycle.AndroidLifecycleScopeProvider;
 
-public abstract class BaseMvpActivity<P extends BasePresenter,T extends ViewBinding> extends AppCompatActivity implements BaseView {
+public abstract class BaseMvpActivity<P extends BasePresenter, T extends ViewBinding> extends AppCompatActivity implements BaseView {
 
     protected P mPresenter;
     private MyProgressLoading mLoading;
     private Context mContext;
     protected T viewBinding;
+
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        mContext =this;
+        mContext = this;
 
-        viewBinding = BindingUtil.createBinding(this,1);
+        viewBinding = BindingUtil.createBinding(this, 1);
         if (viewBinding == null) {
             throw new NullPointerException("binding is null");
         }
@@ -59,16 +61,19 @@ public abstract class BaseMvpActivity<P extends BasePresenter,T extends ViewBind
         }
         super.onDestroy();
     }
+
     /**
      * 设置布局
      */
     public abstract int getLayoutId();
+
     /**
      * 初始化视图
      */
     public abstract void initView();
 
     protected abstract void initData();
+
     /**
      * 绑定生命周期 防止MVP内存泄漏
      *
@@ -96,11 +101,15 @@ public abstract class BaseMvpActivity<P extends BasePresenter,T extends ViewBind
         AsyncRun.runInMain(new Runnable() {
             @Override
             public void run() {
-                Toast.makeText(mContext, msg, Toast.LENGTH_SHORT).show();
+
+                if (!TextUtils.isEmpty(msg)) {
+                    MyToast.show(msg);
+                }
             }
         });
 
     }
+
     @Override
     public void onAgainLogin() {
         mHandler.sendEmptyMessage(1);
@@ -112,7 +121,9 @@ public abstract class BaseMvpActivity<P extends BasePresenter,T extends ViewBind
         @Override
         public void handleMessage(Message msg) {
             if (msg.what == 0) {
-                MyToast.show((String) msg.obj);
+                if (!TextUtils.isEmpty((String) msg.obj)) {
+                    MyToast.show((String) msg.obj);
+                }
             } else {
                 SPUtils.remove(Contents.access_token);
                 LoginActivity.start(mContext);
