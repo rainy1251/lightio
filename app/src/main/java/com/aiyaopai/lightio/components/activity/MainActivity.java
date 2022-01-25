@@ -4,6 +4,7 @@ import android.annotation.SuppressLint;
 import android.content.pm.PackageManager;
 import android.os.Bundle;
 import android.os.Environment;
+import android.text.TextUtils;
 import android.view.MenuItem;
 
 import androidx.annotation.NonNull;
@@ -16,9 +17,13 @@ import com.aiyaopai.lightio.components.fragment.AlbumFragment;
 import com.aiyaopai.lightio.components.fragment.MineFragment;
 import com.aiyaopai.lightio.databinding.ActivityMainBinding;
 import com.aiyaopai.lightio.event.LoginAgainEvent;
+import com.aiyaopai.lightio.event.LoginExitEvent;
 import com.aiyaopai.lightio.event.LoginSuccessEvent;
+import com.aiyaopai.lightio.util.Contents;
+import com.aiyaopai.lightio.util.MyLog;
 import com.aiyaopai.lightio.util.MyToast;
 import com.aiyaopai.lightio.util.PermissionUtils;
+import com.aiyaopai.lightio.util.SPUtils;
 import com.aiyaopai.lightio.view.AppDB;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 
@@ -64,7 +69,7 @@ public class MainActivity extends BaseActivity<ActivityMainBinding> implements B
     @Override
     protected void initData() {
         fragments = new ArrayList<>();
-       // fragments.add(new HomeFragment());
+        // fragments.add(new HomeFragment());
         fragments.add(new AlbumFragment());
         fragments.add(new MineFragment());
         setFragmentPosition(0);
@@ -82,7 +87,12 @@ public class MainActivity extends BaseActivity<ActivityMainBinding> implements B
                 setFragmentPosition(0);
                 return true;
             case R.id.mine:
-                setFragmentPosition(1);
+                String access_token = SPUtils.getString(Contents.access_token);
+                if (TextUtils.isEmpty(access_token)) {
+                    LoginActivity.start(this);
+                } else {
+                    setFragmentPosition(1);
+                }
                 return true;
         }
         return true;
@@ -148,9 +158,22 @@ public class MainActivity extends BaseActivity<ActivityMainBinding> implements B
         }
 
     }
+
     @Subscribe(threadMode = ThreadMode.MAIN)
     public void loginEvent(LoginAgainEvent event) {
         LoginActivity.start(this);
+    }
+
+    @Subscribe(threadMode = ThreadMode.MAIN)
+    public void loginSuccessEvent(LoginSuccessEvent event) {
+        viewBinding.bottomNavBar.setSelectedItemId(R.id.live);
+        setFragmentPosition(0);
+    }
+
+    @Subscribe(threadMode = ThreadMode.MAIN)
+    public void loginExitEvent(LoginExitEvent event) {
+        viewBinding.bottomNavBar.setSelectedItemId(R.id.live);
+        setFragmentPosition(0);
     }
 
     @Override

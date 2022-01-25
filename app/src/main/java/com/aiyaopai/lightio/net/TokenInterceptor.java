@@ -88,6 +88,7 @@ public class TokenInterceptor implements Interceptor {
     private boolean isTokenExpired(Response response) {
         if (response.code() == 401) {
             MyLog.show("Token 过期了");
+            SPUtils.save(Contents.access_token, "");
             return true;
         }
         return false;

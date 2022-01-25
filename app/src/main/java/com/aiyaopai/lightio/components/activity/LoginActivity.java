@@ -11,6 +11,7 @@ import com.aiyaopai.lightio.base.BaseMvpActivity;
 import com.aiyaopai.lightio.bean.BaseBean;
 import com.aiyaopai.lightio.bean.SignInBean;
 import com.aiyaopai.lightio.databinding.ActivityLoginBinding;
+import com.aiyaopai.lightio.event.LoginExitEvent;
 import com.aiyaopai.lightio.event.LoginSuccessEvent;
 import com.aiyaopai.lightio.mvp.contract.LoginContract;
 import com.aiyaopai.lightio.mvp.presenter.LoginPresenter;
@@ -105,4 +106,12 @@ public class LoginActivity extends BaseMvpActivity<LoginPresenter, ActivityLogin
         }
     }
 
+    @Override
+    public void onBackPressed() {
+        super.onBackPressed();
+        String access_token = SPUtils.getString(Contents.access_token);
+        if (TextUtils.isEmpty(access_token)) {
+            EventBus.getDefault().post(new LoginExitEvent());
+        }
+    }
 }

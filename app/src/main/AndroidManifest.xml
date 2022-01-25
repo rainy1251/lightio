@@ -56,7 +56,9 @@
             android:value="640" />
 
         <activity android:name=".components.activity.HomeActivity" />
-        <activity android:name=".components.activity.MainActivity"/>
+        <activity
+            android:name=".components.activity.MainActivity"
+            android:configChanges="orientation|screenSize" />
         <activity android:name=".components.activity.LiveActivity">
 
             <!-- <intent-filter> -->
@@ -78,7 +80,8 @@
             android:theme="@android:style/Theme.Translucent" />
         <activity android:name=".components.activity.SearchPwdActivity" />
         <activity android:name=".components.activity.NoticeActivity" />
-        <activity android:name=".components.activity.SplashActivity"
+        <activity
+            android:name=".components.activity.SplashActivity"
             android:theme="@style/StartAppTheme">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />

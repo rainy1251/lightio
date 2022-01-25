@@ -3,6 +3,7 @@ package com.aiyaopai.lightio.components.fragment;
 import android.annotation.SuppressLint;
 import android.content.Intent;
 import android.net.Uri;
+import android.text.TextUtils;
 import android.view.View;
 
 import com.aiyaopai.lightio.R;
@@ -73,8 +74,9 @@ public class MineFragment extends BaseMvpFragment<MinePresenter, FragmentMineBin
         SPUtils.save(Contents.tokenBeginAt, "");
         viewBinding.tvName.setText("请登录");
         MyToast.show("退出成功");
-        EventBus.getDefault().post(new LoginSuccessEvent(true));
         LoginActivity.start(getActivity());
+        EventBus.getDefault().post(new LoginSuccessEvent(true));
+
     }
 
     @Override
@@ -137,6 +139,11 @@ public class MineFragment extends BaseMvpFragment<MinePresenter, FragmentMineBin
                 dialog.show();
                 break;
             case R.id.tv_exit:
+                String access_token = SPUtils.getString(Contents.access_token);
+                if (TextUtils.isEmpty(access_token)) {
+                    MyToast.show("尚未登录任何账号");
+                    return ;
+                }
                 title = "退出登录";
                 content = "确定要退出当前账号?";
                 type = 3;

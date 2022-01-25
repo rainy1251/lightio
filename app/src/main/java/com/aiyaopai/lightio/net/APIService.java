@@ -106,7 +106,7 @@ public interface APIService {
      */
     @Multipart
     @POST("/upload")
-    Observable<UploadFileBean> getUpLoad(@Part("token") RequestBody token,@Part MultipartBody.Part file);
+    Observable<UploadFileBean> getUpLoad(@Part("token") RequestBody token, @Part MultipartBody.Part file);
 
     /**
      * 查找原始照片列表
